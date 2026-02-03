@@ -1,28 +1,28 @@
 <div align="center">
-  <h1 align="center">SlothAC</h1>
+  <h1 align="center">MKAC</h1>
 
   <p align="center">
-    An AI-powered, free and open-source anti-cheat for Minecraft servers.
+    Беслпатный опен-сурс ИИ Анти-Чит для майнкрафт.
   <br />
-  <a href="https://github.com/KaelusMC/SlothAC/issues">Report Bug</a>
+  <a href="https://github.com/korpys667/MKAC/issues">Report Bug</a>
    ·
-  <a href="https://github.com/KaelusMC/SlothAC/issues">Request Feature</a>
+  <a href="https://github.com/korpys667/MKAC/issues">Request Feature</a>
  </p>
 
  <div>
-  <a href="https://github.com/KaelusMC/SlothAC/actions/workflows/gradle.yml">
-   <img alt="Java CI" src="https://github.com/KaelusMC/SlothAC/actions/workflows/gradle.yml/badge.svg">
+  <a href="https://github.com/korpys667/mkac/actions/workflows/gradle.yml">
+   <img alt="Java CI" src="https://github.com/korpys667/MKAC/actions/workflows/gradle.yml/badge.svg">
   </a>
 
-  <a href="https://www.codefactor.io/repository/github/kaelusmc/slothac">
-   <img alt="CodeFactor" src="https://www.codefactor.io/repository/github/kaelusmc/slothac/badge">
+  <a href="https://www.codefactor.io/repository/github/korpys667/mkac">
+   <img alt="CodeFactor" src="https://www.codefactor.io/repository/github/korpys667/mkac/badge">
   </a>
 
-  <a href="https://dsc.gg/kaelus">
-   <img alt="Discord" src="https://img.shields.io/discord/1297490292349468715?style=flat&label=Discord&logo=discord&color=7289DA&logoColor=white">
+  <a href="https://t.me/MKAntiCheat">
+   <img alt="Telegram" src="https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white"/>
   </a>
 
-  <a href="https://github.com/KaelusMC/SlothAC/">
+  <a href="https://github.com/korpys667/MKAC/">
    <img alt="Views" src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FKaelusMC%2FSlothAC%2FREADME.md&label=Views&countColor=%23555555&style=flat&labelStyle=none">
   </a>
  </div>
@@ -40,21 +40,21 @@
 
 ---
 
-## Downloads
+## Установка
 
-Official builds are available via [GitHub Releases](https://github.com/KaelusMC/SlothAC/releases). 
+Оффициальные билды доступны тут [GitHub Releases](https://github.com/korpys667/MKAC/releases). 
 
-## Compiling From Source
+## Скомпилируйте сурсы
 
-1. `git clone https://github.com/KaelusMC/SlothAC.git`
-2. `cd SlothAC`
+1. `git clone https://github.com/korpys667/MKAC.git`
+2. `cd MKAC`
 3. `./gradlew build`
-4. The final jars will compile into the `build/libs` folder
+4. Готовый .jar будет в папке `build/libs`
 
 
 ## Credits & Attribution
 
-Parts of SlothAC are derived from the open-source [GrimAC](https://github.com/GrimAnticheat/Grim) project. Specifically, certain core components incorporate code and ideas originally developed by GrimAC, DefineOutside, and its contributors.
+Parts of MKAC are derived from the open-source [GrimAC](https://github.com/GrimAnticheat/Grim) project. Specifically, certain core components incorporate code and ideas originally developed by GrimAC, DefineOutside, and its contributors.
 
 These derived portions remain under the terms of the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html), as per the original GrimAC project's license.
 
