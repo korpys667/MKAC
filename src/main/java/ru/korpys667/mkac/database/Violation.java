@@ -1,0 +1,55 @@
+/*
+ * This file is part of MKAC - https://github.com/korpys667/MKAC
+ * Copyright (C) 2026 korpys667, MillyOfficial
+ *
+ * This file contains code derived from GrimAC.
+ * The original authors of GrimAC are credited below.
+ *
+ * Copyright (c) 2021-2026 GrimAC, DefineOutside and contributors.
+ *
+ * MKAC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MKAC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package ru.korpys667.mkac.database;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+public record Violation(
+    String serverName,
+    UUID playerUUID,
+    String playerName,
+    String checkName,
+    String verbose,
+    int vl,
+    Date createdAt) {
+  public static List<Violation> fromResultSet(ResultSet resultSet) throws SQLException {
+    List<Violation> violations = new ArrayList<>();
+    while (resultSet.next()) {
+      String server = resultSet.getString("server");
+      UUID player = UUID.fromString(resultSet.getString("uuid"));
+      String playerName = resultSet.getString("player_name");
+
+      String checkName = resultSet.getString("check_name");
+      String verbose = resultSet.getString("verbose");
+      int vl = resultSet.getInt("vl");
+      Date createdAt = new Date(resultSet.getLong("created_at"));
+      violations.add(new Violation(server, player, playerName, checkName, verbose, vl, createdAt));
+    }
+    return violations;
+  }
+}
