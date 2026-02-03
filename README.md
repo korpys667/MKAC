@@ -21,10 +21,6 @@
   <a href="https://t.me/MKAntiCheat">
    <img alt="Telegram" src="https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white"/>
   </a>
-
-  <a href="https://github.com/korpys667/MKAC/">
-   <img alt="Views" src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FKaelusMC%2FSlothAC%2FREADME.md&label=Views&countColor=%23555555&style=flat&labelStyle=none">
-  </a>
  </div>
 
 [//]: # ( <p align="center">)
