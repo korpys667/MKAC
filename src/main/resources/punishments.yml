@@ -14,25 +14,19 @@ Punishments:
       1: # 20 часов
         - "[alert]"
         - "[log]"
-        - "tempban <player> 20h Система MKAC сочла ваше поведение необычным. Ошибочный бан? t.me/ACSupport_bot"
       3: # 3 дня
         - "[alert]"
         - "[log]"
-        - "tempban <player> 3d Система MKAC сочла ваше поведение необычным. Ошибочный бан? t.me/ACSupport_bot"
       5: # 7 дней
         - "[alert]"
         - "[log]"
-        - "tempban <player> 7d Система MKAC сочла ваше поведение необычным. Ошибочный бан? t.me/ACSupport_bot"
       7: # 14 дней
         - "[alert]"
         - "[log]"
-        - "tempban <player> 14d Система MKAC сочла ваше поведение необычным. Ошибочный бан? t.me/ACSupport_bot"
       9: # 45 дней
         - "[alert]"
         - "[log]"
-        - "tempban <player> 45d Система MKAC сочла ваше поведение необычным. Ошибочный бан? t.me/ACSupport_bot"
       15: # Навсегда
         - "[alert]"
         - "[log]"
-        - "ban <player> Система MKAC сочла ваше поведение необычным. Ошибочный бан? t.me/ACSupport_bot"
         - "[reset]"
