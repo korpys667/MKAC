@@ -58,7 +58,7 @@ Parts of MKAC are derived from the open-source [GrimAC](https://github.com/GrimA
 
 These derived portions remain under the terms of the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html), as per the original GrimAC project's license.
 
-We extend our sincere gratitude to the GrimAC team for their foundational work, which has significantly contributed to the development of SlothAC.
+We extend our sincere gratitude to the GrimAC team for their foundational work, which has significantly contributed to the development of MKAC.
 
 ## License
 
