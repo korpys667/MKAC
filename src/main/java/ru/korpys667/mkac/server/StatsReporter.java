@@ -9,7 +9,7 @@
  *
  * MKAC is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -19,36 +19,39 @@ package ru.korpys667.mkac.server;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import ru.korpys667.mkac.MKAC;
 import ru.korpys667.mkac.config.ConfigManager;
 
 public class StatsReporter {
-  private static final Duration TIMEOUT = Duration.ofSeconds(5);
-  private static final Gson GSON = new Gson();
 
+  private static final Duration TIMEOUT = Duration.ofSeconds(10);
+  private static final Gson GSON = new Gson();
+  private static final long HEARTBEAT_DELAY_TICKS = 100L;
+  private static final long HEARTBEAT_PERIOD_TICKS = 1200L;
   private final MKAC plugin;
   private final ConfigManager configManager;
   private final HttpClient httpClient;
-  private BukkitTask heartbeatTask;
-
-  private String apiBaseUrl;
-  private String apiKey;
-  private String serverIp;
+  private final AtomicReference<BukkitTask> heartbeatTask = new AtomicReference<>();
+  private final AtomicBoolean sending = new AtomicBoolean(false);
+  private volatile String apiBaseUrl;
+  private volatile String apiKey;
 
   public StatsReporter(MKAC plugin, ConfigManager configManager) {
     this.plugin = plugin;
     this.configManager = configManager;
     this.httpClient =
         HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).connectTimeout(TIMEOUT).build();
-
     reload();
   }
 
@@ -59,119 +62,42 @@ public class StatsReporter {
     }
 
     String serverUrl = configManager.getAiServerUrl();
-    this.apiKey = configManager.getAiApiKey();
+    String newApiKey = configManager.getAiApiKey();
 
-    if (serverUrl == null || serverUrl.isEmpty()) {
+    if (isBlank(serverUrl) || isBlank(newApiKey)) {
       stopHeartbeat();
+      plugin.getLogger().warning("MKAC: API URL или ключ не настроены.");
       return;
     }
 
     try {
-      URI uri = URI.create(serverUrl);
-      this.apiBaseUrl = uri.getScheme() + "://" + uri.getHost();
-      if (uri.getPort() != -1 && uri.getPort() != 80 && uri.getPort() != 443) {
-        this.apiBaseUrl += ":" + uri.getPort();
+      URI uri = URI.create(serverUrl.trim());
+      String baseUrl = uri.getScheme() + "://" + uri.getHost();
+      int uriPort = uri.getPort();
+      if (uriPort != -1 && uriPort != 80 && uriPort != 443) {
+        baseUrl += ":" + uriPort;
       }
 
-      this.serverIp = getServerIp();
+      this.apiBaseUrl = baseUrl;
+      this.apiKey = newApiKey.trim();
 
-      plugin.getLogger().info("АПИ: " + apiBaseUrl);
+      plugin.getLogger().info("MKAC API: " + apiBaseUrl);
       startHeartbeat();
+
     } catch (Exception e) {
-      plugin.getLogger().warning("Неверная ссылка: " + e.getMessage());
+      plugin.getLogger().warning("MKAC: Неверный API URL: " + e.getMessage());
       stopHeartbeat();
-    }
-  }
-
-  private String getServerIp() {
-    try {
-      String configIp = Bukkit.getServer().getIp();
-      int port = Bukkit.getServer().getPort();
-
-      if (configIp != null && !configIp.isEmpty() && !configIp.equals("0.0.0.0")) {
-        return configIp + ":" + port;
-      }
-
-      InetAddress localhost = InetAddress.getLocalHost();
-      String ip = localhost.getHostAddress();
-
-      return ip + ":" + port;
-    } catch (Exception e) {
-      return "unknown";
-    }
-  }
-
-  private void startHeartbeat() {
-    stopHeartbeat();
-
-    heartbeatTask =
-        Bukkit.getScheduler()
-            .runTaskTimerAsynchronously(
-                plugin,
-                () -> {
-                  sendHeartbeat();
-                },
-                100L,
-                1200L);
-  }
-
-  private void stopHeartbeat() {
-    if (heartbeatTask != null) {
-      heartbeatTask.cancel();
-      heartbeatTask = null;
-    }
-  }
-
-  private void sendHeartbeat() {
-    if (!configManager.isAiEnabled()) {
-      stopHeartbeat();
-      return;
-    }
-
-    if (apiBaseUrl == null || apiKey == null) return;
-
-    try {
-      int onlineCount = Bukkit.getOnlinePlayers().size();
-
-      JsonObject payload = new JsonObject();
-      payload.addProperty("online_count", onlineCount);
-      payload.addProperty("server_ip", serverIp);
-
-      HttpRequest request =
-          HttpRequest.newBuilder()
-              .uri(URI.create(apiBaseUrl + "/api/server/heartbeat"))
-              .header("Content-Type", "application/json")
-              .header("X-API-Key", apiKey)
-              .POST(HttpRequest.BodyPublishers.ofString(GSON.toJson(payload)))
-              .timeout(TIMEOUT)
-              .build();
-
-      httpClient
-          .sendAsync(request, HttpResponse.BodyHandlers.ofString())
-          .thenAccept(
-              response -> {
-                if (response.statusCode() == 200) {
-                } else {
-                  plugin.getLogger().warning("Ошибка API: " + response.statusCode());
-                }
-              })
-          .exceptionally(
-              throwable -> {
-                plugin.getLogger().warning("Ошибка API: " + throwable.getMessage());
-                return null;
-              });
-
-    } catch (Exception e) {
-      plugin.getLogger().warning("Ошибка API: " + e.getMessage());
     }
   }
 
   public void reportBan(String playerName, String reason, double probability) {
-    if (!configManager.isAiEnabled()) {
-      return;
-    }
+    if (!configManager.isAiEnabled()) return;
 
-    if (apiBaseUrl == null || apiKey == null) return;
+    String url = this.apiBaseUrl;
+    String key = this.apiKey;
+    if (url == null || key == null) return;
+
+    String serverIp = resolveServerIp();
 
     Bukkit.getScheduler()
         .runTaskAsynchronously(
@@ -186,9 +112,9 @@ public class StatsReporter {
 
                 HttpRequest request =
                     HttpRequest.newBuilder()
-                        .uri(URI.create(apiBaseUrl + "/api/server/ban"))
+                        .uri(URI.create(url + "/api/server/ban"))
                         .header("Content-Type", "application/json")
-                        .header("X-API-Key", apiKey)
+                        .header("X-API-Key", key)
                         .POST(HttpRequest.BodyPublishers.ofString(GSON.toJson(payload)))
                         .timeout(TIMEOUT)
                         .build();
@@ -197,9 +123,19 @@ public class StatsReporter {
                     .sendAsync(request, HttpResponse.BodyHandlers.ofString())
                     .thenAccept(
                         response -> {
-                          if (response.statusCode() == 200) {
-                          } else {
+                          if (response.statusCode() != 200) {
+                            plugin
+                                .getLogger()
+                                .warning(
+                                    "Ошибка репорта "
+                                        + response.statusCode()
+                                        + ": "
+                                        + response.body());
                           }
+                        })
+                    .exceptionally(
+                        t -> {
+                          return null;
                         });
 
               } catch (Exception e) {
@@ -209,5 +145,96 @@ public class StatsReporter {
 
   public void shutdown() {
     stopHeartbeat();
+  }
+
+  private void startHeartbeat() {
+    stopHeartbeat();
+
+    BukkitTask task =
+        Bukkit.getScheduler()
+            .runTaskTimerAsynchronously(
+                plugin, this::sendHeartbeat, HEARTBEAT_DELAY_TICKS, HEARTBEAT_PERIOD_TICKS);
+
+    heartbeatTask.set(task);
+  }
+
+  private void stopHeartbeat() {
+    BukkitTask old = heartbeatTask.getAndSet(null);
+    if (old != null) {
+      old.cancel();
+    }
+    sending.set(false);
+  }
+
+  private void sendHeartbeat() {
+    if (!configManager.isAiEnabled()) {
+      stopHeartbeat();
+      return;
+    }
+
+    String url = this.apiBaseUrl;
+    String key = this.apiKey;
+    if (url == null || key == null) return;
+
+    if (!sending.compareAndSet(false, true)) return;
+
+    try {
+      String serverIp = resolveServerIp();
+
+      int onlineCount = Bukkit.getOnlinePlayers().size();
+
+      JsonObject payload = new JsonObject();
+      payload.addProperty("online_count", onlineCount);
+      payload.addProperty("server_ip", serverIp);
+
+      HttpRequest request =
+          HttpRequest.newBuilder()
+              .uri(URI.create(url + "/api/server/heartbeat"))
+              .header("Content-Type", "application/json")
+              .header("X-API-Key", key)
+              .POST(HttpRequest.BodyPublishers.ofString(GSON.toJson(payload)))
+              .timeout(TIMEOUT)
+              .build();
+
+      httpClient
+          .sendAsync(request, HttpResponse.BodyHandlers.ofString())
+          .thenAccept(
+              response -> {
+                if (response.statusCode() != 200) {
+                  plugin
+                      .getLogger()
+                      .warning(
+                          "Ошибка Heartbeat " + response.statusCode() + ": " + response.body());
+                }
+              })
+          .exceptionally(
+              t -> {
+                plugin.getLogger().warning("Ошибка Heartbeat: " + t.getMessage());
+                return null;
+              })
+          .whenComplete((v, t) -> sending.set(false));
+
+    } catch (Exception e) {
+      sending.set(false);
+    }
+  }
+
+  private String resolveServerIp() {
+    int port = Bukkit.getServer().getPort();
+
+    try (DatagramSocket socket = new DatagramSocket()) {
+      socket.connect(InetAddress.getByName("8.8.8.8"), 80);
+      String localIp = socket.getLocalAddress().getHostAddress();
+      if (!isBlank(localIp) && !localIp.equals("0.0.0.0")) {
+        return localIp + ":" + port;
+      }
+    } catch (Exception ignored) {
+    }
+
+    return "0.0.0.0:" + port;
+  }
+
+  private static boolean isBlank(String s) {
+    return s == null || s.trim().isEmpty();
   }
 }
