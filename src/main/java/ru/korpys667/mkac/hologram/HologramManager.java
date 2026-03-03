@@ -181,7 +181,6 @@ public class HologramManager {
     void spawn() {
       if (spawned || !target.isOnline() || !viewer.isOnline()) return;
 
-      // Добавь эту строку:
       Location loc =
           new Location(
               target.getWorld(),
