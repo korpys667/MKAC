@@ -1,6 +1,6 @@
 /*
  * This file is part of MKAC - https://github.com/korpys667/MKAC
- * Copyright (C) 2026 korpys667, MillyOfficial
+ * Copyright (C) 2026 korpys667
  *
  * This file contains code derived from GrimAC.
  * The original authors of GrimAC are credited below.
@@ -51,6 +51,10 @@ public interface ViolationDatabase {
   void saveProbability(UUID uuid, String playerName, double probability);
 
   List<Double> getPlayerProbabilities(UUID uuid, int limit);
+
+  List<ProbabilityEntry> getPlayerProbabilityEntries(UUID uuid, int limit, int offset);
+
+  int getPlayerProbabilityCount(UUID uuid);
 
   void deletePlayerProbabilities(UUID uuid);
 

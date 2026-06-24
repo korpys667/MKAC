@@ -1,6 +1,6 @@
 /*
  * This file is part of MKAC - https://github.com/korpys667/MKAC
- * Copyright (C) 2026 korpys667, MillyOfficial
+ * Copyright (C) 2026 korpys667
  *
  * This file contains code derived from GrimAC.
  * The original authors of GrimAC are credited below.
@@ -30,6 +30,7 @@ import ru.korpys667.mkac.alert.AlertManager;
 import ru.korpys667.mkac.config.ConfigManager;
 import ru.korpys667.mkac.config.LocaleManager;
 import ru.korpys667.mkac.database.DatabaseManager;
+import ru.korpys667.mkac.menu.HistoryMenu;
 import ru.korpys667.mkac.player.PlayerDataManager;
 import ru.korpys667.mkac.sender.Sender;
 import ru.korpys667.mkac.sender.SenderFactory;
@@ -42,7 +43,8 @@ public class CommandManager {
       DatabaseManager databaseManager,
       ConfigManager configManager,
       LocaleManager localeManager,
-      PlayerDataManager playerDataManager) {
+      PlayerDataManager playerDataManager,
+      HistoryMenu historyMenu) {
 
     LegacyPaperCommandManager<Sender> cloudManager = setupCloud(plugin);
     if (cloudManager != null) {
@@ -53,7 +55,8 @@ public class CommandManager {
           databaseManager,
           configManager,
           localeManager,
-          playerDataManager);
+          playerDataManager,
+          historyMenu);
     }
   }
 

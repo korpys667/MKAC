@@ -1,6 +1,6 @@
 /*
  * This file is part of MKAC - https://github.com/korpys667/MKAC
- * Copyright (C) 2026 korpys667, MillyOfficial
+ * Copyright (C) 2026 korpys667
  *
  * This file contains code derived from GrimAC.
  * The original authors of GrimAC are credited below.
@@ -309,6 +309,43 @@ public class SQLiteViolationDatabase implements ViolationDatabase {
     } catch (SQLException e) {
       plugin.getLogger().log(Level.SEVERE, "Failed to save probability for " + uuid, e);
     }
+  }
+
+  @Override
+  public List<ProbabilityEntry> getPlayerProbabilityEntries(UUID uuid, int limit, int offset) {
+    List<ProbabilityEntry> entries = new ArrayList<>();
+    String sql =
+        "SELECT probability, created_at FROM chicken_coop_probabilities WHERE uuid = ? ORDER BY created_at DESC LIMIT ? OFFSET ?";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, uuid.toString());
+      ps.setInt(2, limit);
+      ps.setInt(3, offset);
+      try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+          entries.add(new ProbabilityEntry(rs.getDouble("probability"), rs.getLong("created_at")));
+        }
+      }
+    } catch (SQLException e) {
+      plugin.getLogger().log(Level.SEVERE, "Failed to get probability entries for " + uuid, e);
+    }
+    java.util.Collections.reverse(entries);
+    return entries;
+  }
+
+  @Override
+  public int getPlayerProbabilityCount(UUID uuid) {
+    String sql = "SELECT COUNT(*) FROM chicken_coop_probabilities WHERE uuid = ?";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)) {
+      ps.setString(1, uuid.toString());
+      try (ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) return rs.getInt(1);
+      }
+    } catch (SQLException e) {
+      plugin.getLogger().log(Level.SEVERE, "Failed to count probabilities for " + uuid, e);
+    }
+    return 0;
   }
 
   @Override

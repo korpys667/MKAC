@@ -1,6 +1,6 @@
 /*
  * This file is part of MKAC - https://github.com/korpys667/MKAC
- * Copyright (C) 2026 korpys667, MillyOfficial
+ * Copyright (C) 2026 korpys667
  *
  * This file contains code derived from GrimAC.
  * The original authors of GrimAC are credited below.
@@ -38,6 +38,7 @@ import ru.korpys667.mkac.command.handler.MKCommandFailureHandler;
 import ru.korpys667.mkac.config.ConfigManager;
 import ru.korpys667.mkac.config.LocaleManager;
 import ru.korpys667.mkac.database.DatabaseManager;
+import ru.korpys667.mkac.menu.HistoryMenu;
 import ru.korpys667.mkac.player.PlayerDataManager;
 import ru.korpys667.mkac.sender.Sender;
 import ru.korpys667.mkac.utils.MessageUtil;
@@ -59,7 +60,8 @@ public class CommandRegister {
       DatabaseManager databaseManager,
       ConfigManager configManager,
       LocaleManager localeManager,
-      PlayerDataManager playerDataManager) {
+      PlayerDataManager playerDataManager,
+      HistoryMenu historyMenu) {
 
     if (commandsRegistered) return;
 
@@ -68,8 +70,7 @@ public class CommandRegister {
     new ReloadCommand(plugin).register(commandManager);
     new ProbCommand(playerDataManager, localeManager, plugin).register(commandManager);
     new ProfileCommand(playerDataManager, localeManager).register(commandManager);
-    new HistoryCommand(plugin, databaseManager, configManager, localeManager)
-        .register(commandManager);
+    new HistoryCommand(historyMenu).register(commandManager);
     new LogsCommand(plugin, databaseManager, configManager, localeManager).register(commandManager);
     new PunishCommand(databaseManager).register(commandManager);
     new BrandsCommand(alertManager).register(commandManager);

@@ -1,6 +1,6 @@
 /*
  * This file is part of MKAC - https://github.com/korpys667/MKAC
- * Copyright (C) 2026 korpys667, MillyOfficial
+ * Copyright (C) 2026 korpys667
  *
  * This file contains code derived from GrimAC.
  * The original authors of GrimAC are credited below.
@@ -22,40 +22,23 @@
  */
 package ru.korpys667.mkac.command.commands;
 
-import java.util.List;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.bukkit.parser.OfflinePlayerParser;
 import org.incendo.cloud.context.CommandContext;
-import org.incendo.cloud.parser.standard.IntegerParser;
-import ru.korpys667.mkac.MKAC;
+import ru.korpys667.mkac.command.CommandRegister;
 import ru.korpys667.mkac.command.MKCommand;
-import ru.korpys667.mkac.config.ConfigManager;
-import ru.korpys667.mkac.config.LocaleManager;
-import ru.korpys667.mkac.database.DatabaseManager;
-import ru.korpys667.mkac.database.Violation;
+import ru.korpys667.mkac.command.requirements.PlayerSenderRequirement;
+import ru.korpys667.mkac.menu.HistoryMenu;
 import ru.korpys667.mkac.sender.Sender;
-import ru.korpys667.mkac.utils.Message;
-import ru.korpys667.mkac.utils.MessageUtil;
-import ru.korpys667.mkac.utils.TimeUtil;
 
 public class HistoryCommand implements MKCommand {
 
-  private final MKAC plugin;
-  private final DatabaseManager databaseManager;
-  private final ConfigManager configManager;
-  private final LocaleManager localeManager;
+  private final HistoryMenu historyMenu;
 
-  public HistoryCommand(
-      MKAC plugin,
-      DatabaseManager databaseManager,
-      ConfigManager configManager,
-      LocaleManager localeManager) {
-    this.plugin = plugin;
-    this.databaseManager = databaseManager;
-    this.configManager = configManager;
-    this.localeManager = localeManager;
+  public HistoryCommand(HistoryMenu historyMenu) {
+    this.historyMenu = historyMenu;
   }
 
   @Override
@@ -66,68 +49,16 @@ public class HistoryCommand implements MKCommand {
             .literal("history", "hist")
             .permission("mkac.history")
             .required("target", OfflinePlayerParser.offlinePlayerParser())
-            .optional("page", IntegerParser.integerParser(1))
+            .apply(
+                CommandRegister.REQUIREMENT_FACTORY.create(
+                    PlayerSenderRequirement.PLAYER_SENDER_REQUIREMENT))
             .handler(this::handleHistory));
   }
 
   private void handleHistory(CommandContext<Sender> context) {
-    Sender sender = context.sender();
+    Player viewer = context.sender().getPlayer();
     OfflinePlayer target = context.get("target");
-    int page = context.getOrDefault("page", 1);
 
-    if (databaseManager.getDatabase() == null
-        || !configManager.getConfig().getBoolean("history.enabled", false)) {
-      MessageUtil.sendMessage(sender.getNativeSender(), Message.HISTORY_DISABLED);
-      return;
-    }
-
-    Bukkit.getScheduler()
-        .runTaskAsynchronously(
-            plugin,
-            () -> {
-              if (!target.hasPlayedBefore() && !target.isOnline()) {
-                MessageUtil.sendMessage(sender.getNativeSender(), Message.PLAYER_NOT_FOUND);
-                return;
-              }
-
-              int entriesPerPage = 10;
-              List<Violation> violations =
-                  databaseManager
-                      .getDatabase()
-                      .getViolations(target.getUniqueId(), page, entriesPerPage);
-              int totalLogs = databaseManager.getDatabase().getLogCount(target.getUniqueId());
-              int maxPages = Math.max(1, (int) Math.ceil((double) totalLogs / entriesPerPage));
-
-              MessageUtil.sendMessage(
-                  sender.getNativeSender(),
-                  Message.HISTORY_HEADER,
-                  "player",
-                  target.getName(),
-                  "page",
-                  String.valueOf(page),
-                  "max_pages",
-                  String.valueOf(maxPages));
-
-              if (violations.isEmpty()) {
-                MessageUtil.sendMessage(sender.getNativeSender(), Message.HISTORY_NO_VIOLATIONS);
-                return;
-              }
-
-              for (Violation violation : violations) {
-                sender.sendMessage(
-                    MessageUtil.getMessage(
-                        Message.HISTORY_ENTRY,
-                        "server",
-                        violation.serverName(),
-                        "check",
-                        violation.checkName(),
-                        "vl",
-                        String.valueOf(violation.vl()),
-                        "verbose",
-                        violation.verbose(),
-                        "timeago",
-                        TimeUtil.formatTimeAgo(violation.createdAt(), localeManager)));
-              }
-            });
+    historyMenu.open(viewer, target.getName(), target.getUniqueId(), 1);
   }
 }

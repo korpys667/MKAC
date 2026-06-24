@@ -1,6 +1,6 @@
 /*
  * This file is part of MKAC - https://github.com/korpys667/MKAC
- * Copyright (C) 2026 korpys667, MillyOfficial
+ * Copyright (C) 2026 korpys667
  *
  * MKAC is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ import ru.korpys667.mkac.event.DamageEvent;
 import ru.korpys667.mkac.hologram.HologramManager;
 import ru.korpys667.mkac.integration.WorldGuardManager;
 import ru.korpys667.mkac.menu.ChickenCoopMenu;
+import ru.korpys667.mkac.menu.HistoryMenu;
 import ru.korpys667.mkac.packet.PacketListener;
 import ru.korpys667.mkac.player.PlayerDataManager;
 import ru.korpys667.mkac.server.AIServerProvider;
@@ -49,6 +50,7 @@ public final class MKAC extends JavaPlugin {
   @Getter PlayerDataManager playerDataManager;
   @Getter DatabaseManager databaseManager;
   @Getter private ChickenCoopMenu chickenCoopMenu;
+  @Getter private HistoryMenu historyMenu;
   @Getter private HologramManager hologramManager;
   @Getter private DebugManager debugManager;
   @Getter private BukkitAudiences adventure;
@@ -76,6 +78,7 @@ public final class MKAC extends JavaPlugin {
     this.aiServerProvider = new AIServerProvider(this, configManager);
     this.statsReporter = new StatsReporter(this, configManager);
     this.chickenCoopMenu = new ChickenCoopMenu(this);
+    this.historyMenu = new HistoryMenu(this);
     this.hologramManager = new HologramManager(this);
     this.playerDataManager =
         new PlayerDataManager(
@@ -93,13 +96,20 @@ public final class MKAC extends JavaPlugin {
 
     this.commandManager =
         new CommandManager(
-            this, alertManager, databaseManager, configManager, localeManager, playerDataManager);
+            this,
+            alertManager,
+            databaseManager,
+            configManager,
+            localeManager,
+            playerDataManager,
+            historyMenu);
 
     getServer().getPluginManager().registerEvents(new DamageEvent(playerDataManager), this);
     getServer()
         .getPluginManager()
         .registerEvents(
-            new ru.korpys667.mkac.listener.MenuClickListener(this, chickenCoopMenu), this);
+            new ru.korpys667.mkac.listener.MenuClickListener(this, chickenCoopMenu, historyMenu),
+            this);
   }
 
   public void reloadPlugin() {
