@@ -29,10 +29,10 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("com.github.decentsoftware-eu:decentholograms:2.8.17")
     implementation("com.github.retrooper:packetevents-spigot:2.13.0")
-    implementation("org.incendo:cloud-paper:2.0.0-beta.10")
+    implementation("org.incendo:cloud-paper:2.0.0-beta.16")
     implementation("org.incendo:cloud-processors-requirements:1.0.0-rc.1")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.4")
-    implementation("net.kyori:adventure-text-minimessage:4.17.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.4.1")
+    implementation("net.kyori:adventure-text-minimessage:4.26.1")
     implementation("com.zaxxer:HikariCP:7.0.2")
     implementation("org.slf4j:slf4j-jdk14:2.0.17")
     compileOnly("org.projectlombok:lombok:1.18.32")
@@ -60,6 +60,9 @@ tasks.shadowJar {
     minimize {
         exclude(dependency("org.slf4j:slf4j-api"))
         exclude(dependency("org.slf4j:slf4j-jdk14"))
+        exclude(dependency("net.kyori:adventure-text-serializer-gson"))
+        exclude(dependency("net.kyori:adventure-text-serializer-json"))
+        exclude(dependency("net.kyori:adventure-text-serializer-legacy"))
     }
 
     transformers.add(ServiceFileTransformer())
