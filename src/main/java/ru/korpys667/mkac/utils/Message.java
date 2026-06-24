@@ -33,6 +33,7 @@ public enum Message {
   BRAND_ALERTS_DISABLED("brand.alerts-disabled"),
   BRAND_NOTIFICATION("brand.notification"),
   BRAND_DISCONNECT_FORGE("brand.disconnect-forge"),
+  CROSS_SERVER_ALERT_PREFIX("cross-server.alert-prefix"),
   PROB_ENABLED("prob.enabled"),
   PROB_DISABLED("prob.disabled"),
   PROB_NO_DATA("prob.no-data"),

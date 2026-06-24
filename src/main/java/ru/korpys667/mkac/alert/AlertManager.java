@@ -34,6 +34,7 @@ import org.bukkit.entity.Player;
 import ru.korpys667.mkac.MKAC;
 import ru.korpys667.mkac.config.ConfigManager;
 import ru.korpys667.mkac.config.LocaleManager;
+import ru.korpys667.mkac.redis.CrossServerPublisher;
 import ru.korpys667.mkac.utils.Message;
 import ru.korpys667.mkac.utils.MessageUtil;
 
@@ -52,6 +53,12 @@ public class AlertManager {
 
   @Getter private String alertFormat;
   @Getter private String brandAlertFormat;
+
+  private volatile CrossServerPublisher crossServerPublisher;
+
+  public void setCrossServerPublisher(CrossServerPublisher publisher) {
+    this.crossServerPublisher = publisher;
+  }
 
   public AlertManager(
       MKAC plugin,
@@ -94,6 +101,14 @@ public class AlertManager {
   }
 
   public void send(Component component, AlertType type) {
+    deliver(component, type);
+    CrossServerPublisher publisher = this.crossServerPublisher;
+    if (publisher != null) {
+      publisher.publish(type, component);
+    }
+  }
+
+  public void deliver(Component component, AlertType type) {
     Set<UUID> playersSet = playersWithAlerts.get(type);
     String permission = type.getPermission();
 

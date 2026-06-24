@@ -39,6 +39,7 @@ import ru.korpys667.mkac.server.AIServerProvider;
 import ru.korpys667.mkac.utils.update.RotationUpdate;
 
 public class CheckManager {
+  private final MKPlayer mkPlayer;
   private final List<RotationCheck> rotationChecks = new ArrayList<>();
   private final List<PacketCheck> packetChecks = new ArrayList<>();
 
@@ -52,6 +53,7 @@ public class CheckManager {
       WorldGuardManager worldGuardManager,
       AlertManager alertManager) {
 
+    this.mkPlayer = player;
     registerCheck(new AimProcessor(player));
     registerCheck(new ActionManager(player, configManager));
     registerCheck(
@@ -81,12 +83,14 @@ public class CheckManager {
   }
 
   public void onRotationUpdate(RotationUpdate update) {
+    if (mkPlayer.isBedrockExempt()) return;
     for (RotationCheck check : rotationChecks) {
       check.process(update);
     }
   }
 
   public void onPacketReceive(PacketReceiveEvent event) {
+    if (mkPlayer.isBedrockExempt()) return;
     for (PacketCheck check : packetChecks) {
       check.onPacketReceive(event);
     }

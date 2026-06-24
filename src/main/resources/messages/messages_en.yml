@@ -22,6 +22,9 @@ prob:
     separator: " | "
     suffix-ping: "ms"
 
+cross-server:
+  alert-prefix: "<dark_gray>[<gold><server></gold>]"
+
 brand:
   alerts-enabled: "<prefix> <white>Brand notifications enabled."
   alerts-disabled: "<prefix> <white>Brand notifications disabled."

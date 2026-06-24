@@ -13,7 +13,6 @@ ai:
   api-key: "MKAC"
   # Количество тиков, которые надо отправить в последовательности AI.
   sequence: 40
-  #
   #Количество тиков, которое нужно подождать перед отправкой следующей последовательности.
   step: 10
   buffer:
@@ -64,6 +63,46 @@ history:
 suspicious:
   alerts:
     buffer: 25.0
+
+redis:
+  # Включить Redis соединение. Требуется для cross-server оповещений.
+  enabled: false
+  host: "localhost"
+  port: 1488
+  # Оставь пустым, если у Redis нет пароля.
+  password: ""
+  # Логическая БД.
+  database: 0
+  # Подключение через TLS (rediss://).
+  ssl: false
+  # Таймаут подключения и команд (сек).
+  timeout-seconds: 10
+
+# Транслировать оповещения между серверами, использующими один Redis.
+cross-server:
+  # Требует redis.enabled выше.
+  enabled: false
+  # Имя, которое будет отображаться как тег источника, например [Lobby].
+  server-name: "server-1"
+  # Redis pub/sub канал. Все серверы должны использовать одно и то же значение.
+  channel: "mkac:alerts"
+  # Какие типы оповещений транслировать.
+  alerts:
+    # Нарушения (флаги).
+    regular: true
+    # Подозрительные игроки (буфер). Включение также запускает синхронизацию
+    # списка подозрительных игроков между серверами.
+    suspicious: true
+  # Настройка синхронизации списка подозрительных (используется только если cross-server.alerts.suspicious включён).
+  suspicious-sync:
+    # Как долго запись живёт в Redis без обновления (сек).
+    ttl-seconds: 30
+    # Как часто сервер публикует своих подозрительных игроков (сек).
+    refresh-seconds: 10
+
+exemptions:
+  # Исключить Bedrock-игроков (Geyser/Floodgate) из всех проверок?
+  bedrock: true
 
 debug:
   # AI_PROBABILITY, AI_TIMEOUT, WORLDGUARD, PACKET_DUPLICATION

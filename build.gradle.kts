@@ -20,6 +20,7 @@ repositories {
     maven("https://repo.codemc.io/repository/maven-snapshots/")
     maven("https://maven.enginehub.org/repo/")
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+    maven("https://repo.opencollab.dev/maven-snapshots/")
     maven("https://jitpack.io")
 }
 
@@ -35,12 +36,16 @@ dependencies {
     implementation("net.kyori:adventure-text-minimessage:4.17.0")
     implementation("com.zaxxer:HikariCP:7.0.2")
     implementation("org.slf4j:slf4j-jdk14:2.0.17")
+    compileOnly("org.geysermc.floodgate:api:2.0-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.32")
     annotationProcessor("org.projectlombok:lombok:1.18.32")
     implementation("it.unimi.dsi:fastutil:8.5.15")
     implementation("org.jetbrains:annotations:24.1.0")
     implementation("com.google.flatbuffers:flatbuffers-java:25.2.10")
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.2")
+    implementation("io.lettuce:lettuce-core:6.5.0.RELEASE") { exclude(group = "io.netty") }
+    compileOnly("io.netty:netty-handler:4.1.113.Final")
     errorprone("com.google.errorprone:error_prone_core:2.41.0")
 }
 
@@ -63,6 +68,12 @@ tasks.shadowJar {
         exclude(dependency("net.kyori:adventure-text-serializer-gson"))
         exclude(dependency("net.kyori:adventure-text-serializer-json"))
         exclude(dependency("net.kyori:adventure-text-serializer-legacy"))
+        exclude(dependency("io.lettuce:lettuce-core"))
+        exclude(dependency("com.fasterxml.jackson.core:jackson-databind"))
+        exclude(dependency("com.fasterxml.jackson.core:jackson-core"))
+        exclude(dependency("com.fasterxml.jackson.core:jackson-annotations"))
+        exclude(dependency("io.projectreactor:reactor-core"))
+        exclude(dependency("org.reactivestreams:reactive-streams"))
     }
 
     transformers.add(ServiceFileTransformer())
@@ -79,6 +90,10 @@ tasks.shadowJar {
     relocate("org.slf4j", "ru.korpys667.mkac.libs.slf4j")
     relocate("org.jetbrains", "ru.korpys667.mkac.libs.jetbrains")
     relocate("org.intellij", "ru.korpys667.mkac.libs.intellij")
+    relocate("com.fasterxml.jackson", "ru.korpys667.mkac.libs.jackson")
+    relocate("io.lettuce", "ru.korpys667.mkac.libs.lettuce")
+    relocate("reactor", "ru.korpys667.mkac.libs.reactor")
+    relocate("org.reactivestreams", "ru.korpys667.mkac.libs.reactivestreams")
 }
 
 tasks.build {
@@ -95,10 +110,9 @@ bukkit {
     version = project.version.toString()
     apiVersion = "1.13"
     authors = listOf(
-        "korpys667",
-        "MillyOfficial"
+        "korpys667"
     )
-    website = "https://luxegrief.ru"
+    website = "https://mkac.fun"
     softDepend = listOf(
         "ProtocolLib",
         "ProtocolSupport",

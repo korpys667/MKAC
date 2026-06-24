@@ -63,6 +63,7 @@ public class ConfigManager {
   private double suspiciousAlertsBuffer;
 
   private List<String> enabledDebugCategories;
+  private boolean bedrockExemptEnabled;
 
   public ConfigManager(MKAC plugin) {
     this.plugin = plugin;
@@ -127,6 +128,12 @@ public class ConfigManager {
     if (enabledDebugCategories == null) {
       enabledDebugCategories = Collections.emptyList();
     }
+
+    bedrockExemptEnabled = config.getBoolean("exemptions.bedrock", true);
+  }
+
+  public boolean isBedrockExemptEnabled() {
+    return bedrockExemptEnabled;
   }
 
   public boolean isClientIgnored(String brand) {

@@ -35,12 +35,14 @@ import ru.korpys667.mkac.menu.ChickenCoopMenu;
 import ru.korpys667.mkac.menu.HistoryMenu;
 import ru.korpys667.mkac.packet.PacketListener;
 import ru.korpys667.mkac.player.PlayerDataManager;
+import ru.korpys667.mkac.redis.CrossServerAlertService;
+import ru.korpys667.mkac.redis.CrossServerSuspiciousService;
+import ru.korpys667.mkac.redis.RedisManager;
 import ru.korpys667.mkac.server.AIServerProvider;
 import ru.korpys667.mkac.server.StatsReporter;
 import ru.korpys667.mkac.utils.MessageUtil;
 
 public final class MKAC extends JavaPlugin {
-  private ConfigManager configManager;
   private LocaleManager localeManager;
   private AIServerProvider aiServerProvider;
   private WorldGuardManager worldGuardManager;
@@ -49,11 +51,15 @@ public final class MKAC extends JavaPlugin {
   private StatsReporter statsReporter;
   @Getter PlayerDataManager playerDataManager;
   @Getter DatabaseManager databaseManager;
+  @Getter private ConfigManager configManager;
   @Getter private ChickenCoopMenu chickenCoopMenu;
   @Getter private HistoryMenu historyMenu;
   @Getter private HologramManager hologramManager;
   @Getter private DebugManager debugManager;
   @Getter private BukkitAudiences adventure;
+  private RedisManager redisManager;
+  private CrossServerAlertService crossServerAlertService;
+  private CrossServerSuspiciousService crossServerSuspiciousService;
 
   @Override
   public void onLoad() {
@@ -93,6 +99,17 @@ public final class MKAC extends JavaPlugin {
         .getEventManager()
         .registerListener(new PacketListener(this.playerDataManager));
     PacketEvents.getAPI().init();
+
+    // Redis & Cross-server
+    this.redisManager = new RedisManager(configManager, getLogger());
+    this.crossServerAlertService =
+        new CrossServerAlertService(
+            configManager, this.redisManager, alertManager, this, getLogger());
+    this.crossServerAlertService.start();
+    this.crossServerSuspiciousService =
+        new CrossServerSuspiciousService(
+            configManager, this.redisManager, playerDataManager, this, getLogger());
+    this.crossServerSuspiciousService.start();
 
     this.commandManager =
         new CommandManager(
@@ -143,6 +160,15 @@ public final class MKAC extends JavaPlugin {
     }
     if (PacketEvents.getAPI().isInitialized()) {
       PacketEvents.getAPI().terminate();
+    }
+    if (crossServerSuspiciousService != null) {
+      crossServerSuspiciousService.shutdown();
+    }
+    if (crossServerAlertService != null) {
+      crossServerAlertService.shutdown();
+    }
+    if (redisManager != null) {
+      redisManager.shutdown();
     }
   }
 

@@ -74,6 +74,11 @@ public class MKPlayer {
   @Setter private int entityId;
   @Setter private GameMode gameMode = GameMode.SURVIVAL;
   @Setter private String brand = "vanilla";
+  @Setter private boolean bedrock = false;
+
+  public boolean isBedrockExempt() {
+    return plugin.getConfigManager().isBedrockExemptEnabled() && bedrock;
+  }
 
   public double x, y, z;
   public float yaw, pitch;

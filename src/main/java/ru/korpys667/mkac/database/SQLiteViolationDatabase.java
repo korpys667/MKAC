@@ -314,6 +314,7 @@ public class SQLiteViolationDatabase implements ViolationDatabase {
   @Override
   public List<ProbabilityEntry> getPlayerProbabilityEntries(UUID uuid, int limit, int offset) {
     List<ProbabilityEntry> entries = new ArrayList<>();
+    String serverName = configManager.getConfig().getString("cross-server.server-name", "local");
     String sql =
         "SELECT probability, created_at FROM chicken_coop_probabilities WHERE uuid = ? ORDER BY created_at DESC LIMIT ? OFFSET ?";
     try (Connection conn = dataSource.getConnection();
@@ -323,7 +324,9 @@ public class SQLiteViolationDatabase implements ViolationDatabase {
       ps.setInt(3, offset);
       try (ResultSet rs = ps.executeQuery()) {
         while (rs.next()) {
-          entries.add(new ProbabilityEntry(rs.getDouble("probability"), rs.getLong("created_at")));
+          entries.add(
+              new ProbabilityEntry(
+                  rs.getDouble("probability"), rs.getLong("created_at"), serverName));
         }
       }
     } catch (SQLException e) {

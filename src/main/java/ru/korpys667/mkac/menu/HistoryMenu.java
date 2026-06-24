@@ -25,7 +25,7 @@ public class HistoryMenu {
   private static final int PROBS_PER_ENTRY = 10;
   private static final int MAX_PAGES = 3;
 
-  private static final String MENU_PREFIX = ChatColor.DARK_GRAY + "История";
+  private static final String MENU_PREFIX = ChatColor.DARK_GRAY + "История ";
 
   private static final String PREV_ARROW_NAME = ChatColor.GREEN + "← Предыдущая страница";
   private static final String NEXT_ARROW_NAME = ChatColor.GREEN + "Следующая страница →";
@@ -126,7 +126,16 @@ public class HistoryMenu {
       lore.add("");
 
       lore.add(
-          ChatColor.WHITE + "Вер. " + ChatColor.DARK_GRAY + "   |" + ChatColor.WHITE + " Время");
+          ChatColor.WHITE
+              + "Вер. "
+              + ChatColor.DARK_GRAY
+              + "   |"
+              + ChatColor.WHITE
+              + " Сервер"
+              + ChatColor.DARK_GRAY
+              + "    |"
+              + ChatColor.WHITE
+              + " Время");
 
       lore.add(ChatColor.DARK_GRAY + "──────────────────");
 
@@ -134,11 +143,19 @@ public class HistoryMenu {
         ChatColor probColor = getColorByProbability(entry.probability());
         long elapsed = System.currentTimeMillis() - entry.createdAt();
         String timeStr = formatElapsed(elapsed);
+        String serverName = entry.server();
         lore.add(
             probColor
                 + String.format("%.4f", entry.probability())
                 + " "
-                + ChatColor.DARK_GRAY
+                + ChatColor.GRAY
+                + "|"
+                + ChatColor.GRAY
+                + " "
+                + ChatColor.GRAY
+                + serverName
+                + " "
+                + ChatColor.GRAY
                 + "|"
                 + ChatColor.GRAY
                 + " "

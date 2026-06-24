@@ -36,6 +36,7 @@ import ru.korpys667.mkac.alert.AlertManager;
 import ru.korpys667.mkac.alert.AlertType;
 import ru.korpys667.mkac.config.ConfigManager;
 import ru.korpys667.mkac.database.DatabaseManager;
+import ru.korpys667.mkac.integration.GeyserUtil;
 import ru.korpys667.mkac.integration.WorldGuardManager;
 import ru.korpys667.mkac.server.AIServerProvider;
 
@@ -85,8 +86,7 @@ public class PlayerDataManager implements Listener {
       return;
     }
 
-    players.put(
-        player.getUniqueId(),
+    MKPlayer mkPlayer =
         new MKPlayer(
             player,
             plugin,
@@ -94,8 +94,17 @@ public class PlayerDataManager implements Listener {
             databaseManager,
             alertManager,
             aiServerProvider,
-            worldGuardManager));
+            worldGuardManager);
 
+    mkPlayer.setBedrock(GeyserUtil.isBedrockPlayer(player.getUniqueId()));
+
+    if (mkPlayer.isBedrockExempt()) {
+      plugin
+          .getLogger()
+          .info("[Geyser] " + player.getName() + " is a Bedrock player, checks exempted.");
+    }
+
+    players.put(player.getUniqueId(), mkPlayer);
     plugin.getChickenCoopMenu().restorePlayer(player.getUniqueId(), player.getName());
   }
 
