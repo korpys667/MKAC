@@ -28,7 +28,7 @@ dependencies {
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.9")
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("com.github.decentsoftware-eu:decentholograms:2.8.17")
-    implementation("com.github.retrooper:packetevents-spigot:2.10.0")
+    implementation("com.github.retrooper:packetevents-spigot:2.13.0")
     implementation("org.incendo:cloud-paper:2.0.0-beta.10")
     implementation("org.incendo:cloud-processors-requirements:1.0.0-rc.1")
     implementation("net.kyori:adventure-platform-bukkit:4.3.4")
