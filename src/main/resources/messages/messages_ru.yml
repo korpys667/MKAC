@@ -22,6 +22,11 @@ prob:
     separator: " | "
     suffix-ping: "мс"
 
+falsepositive:
+  success: "<prefix> <green>Тики сохранены в restored_data/<player>_<дата>.csv"
+  fail: "<prefix> <red>Не удалось сохранить данные"
+  no-data: "<prefix> <red>Нет данных для сохранения"
+
 cross-server:
   alert-prefix: "<dark_gray>[<gold><server></gold>]"
 

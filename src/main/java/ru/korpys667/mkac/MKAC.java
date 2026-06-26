@@ -100,7 +100,6 @@ public final class MKAC extends JavaPlugin {
         .registerListener(new PacketListener(this.playerDataManager));
     PacketEvents.getAPI().init();
 
-    // Redis & Cross-server
     this.redisManager = new RedisManager(configManager, getLogger());
     this.crossServerAlertService =
         new CrossServerAlertService(

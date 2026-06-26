@@ -128,7 +128,6 @@ public class CrossServerSuspiciousService {
     }
   }
 
-  /** Fetch suspicious players from other servers. */
   public List<SuspiciousSnapshot> fetchRemote() {
     if (!enabled) return List.of();
     return redisManager.scanValues(keyPrefix + ":*").stream()

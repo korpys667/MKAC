@@ -128,7 +128,6 @@ public class CrossServerAlertService implements CrossServerPublisher {
     }
   }
 
-  /** Recursively removes click events from the component for security. */
   private Component stripClickEvents(Component component) {
     return component.clickEvent(null);
   }

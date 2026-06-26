@@ -142,7 +142,8 @@ bukkit {
                 "mkac.prob",
                 "mkac.profile",
                 "mkac.brand",
-                "mkac.brand.enable-on-join"
+                "mkac.brand.enable-on-join",
+                "mkac.falsepositive"
             )
         }
         register("mkac.help") {
@@ -172,6 +173,10 @@ bukkit {
         register("mkac.exempt") {
             description = "Исключение для всех чеков"
             default = Permission.Default.FALSE
+        }
+        register("mkac.falsepositive") {
+            description = "Сохранение тиков для анализа false positive"
+            default = Permission.Default.OP
         }
         register("mkac.prob") {
             description = "Разрешает смотреть вероятность (пробу)"

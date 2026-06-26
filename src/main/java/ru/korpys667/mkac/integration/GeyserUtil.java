@@ -41,10 +41,6 @@ public final class GeyserUtil {
 
   private GeyserUtil() {}
 
-  /**
-   * Checks if the player with the given UUID is a Bedrock Edition player. Uses Floodgate API first,
-   * then Geyser API via reflection, then falls back to checking the UUID prefix.
-   */
   public static boolean isBedrockPlayer(UUID uuid) {
     return isFloodgateBedrock(uuid)
         || isGeyserBedrock(uuid)

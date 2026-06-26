@@ -77,6 +77,7 @@ public class CommandRegister {
     new SuspiciousCommand(playerDataManager, alertManager).register(commandManager);
     new StatsCommand(plugin, databaseManager, playerDataManager).register(commandManager);
     new MenuCommand(plugin.getChickenCoopMenu()).register(commandManager);
+    new FalsePositiveCommand(plugin, playerDataManager).register(commandManager);
     new StatusCommand(plugin.getHologramManager()).register(commandManager);
 
     final RequirementPostprocessor<Sender, SenderRequirement> senderRequirementPostprocessor =

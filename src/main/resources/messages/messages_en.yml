@@ -22,6 +22,11 @@ prob:
     separator: " | "
     suffix-ping: "ms"
 
+falsepositive:
+  success: "<prefix> <green>Ticks saved to restored_data/<player>_<date>.csv"
+  fail: "<prefix> <red>Failed to save data"
+  no-data: "<prefix> <red>No data to save"
+
 cross-server:
   alert-prefix: "<dark_gray>[<gold><server></gold>]"
 

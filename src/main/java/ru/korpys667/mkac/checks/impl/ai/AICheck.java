@@ -58,9 +58,12 @@ public class AICheck extends AbstractCheck implements PacketCheck, Reloadable {
   private final WorldGuardManager worldGuardManager;
   private final AlertManager alertManager;
 
+  private static final int MAX_TICK_HISTORY = 5000;
+
   private int step;
   private AIServer aiServer;
   private Deque<TickData> ticks;
+  private final Deque<TickData> tickHistory = new ArrayDeque<>(MAX_TICK_HISTORY);
   private int ticksStep = 0;
 
   @Getter private double buffer = 0.0;
@@ -68,6 +71,11 @@ public class AICheck extends AbstractCheck implements PacketCheck, Reloadable {
 
   @Getter @Setter private int prob90 = 0;
   private boolean aiDamageReductionEnabled;
+
+  public List<TickData> getTickHistory() {
+    return new ArrayList<>(tickHistory);
+  }
+
   private double aiDamageReductionProb;
   private double aiDamageReductionMultiplier;
 
@@ -148,7 +156,12 @@ public class AICheck extends AbstractCheck implements PacketCheck, Reloadable {
       return;
     }
 
-    ticks.addLast(new TickData(mkPlayer));
+    TickData tickData = new TickData(mkPlayer);
+    ticks.addLast(tickData);
+    tickHistory.addLast(tickData);
+    while (tickHistory.size() > MAX_TICK_HISTORY) {
+      tickHistory.removeFirst();
+    }
     ticksStep++;
 
     while (ticks.size() > sequence) {
