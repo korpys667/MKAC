@@ -1,29 +1,6 @@
-/*
- * This file is part of MKAC - https://github.com/korpys667/MKAC
- * Copyright (C) 2026 korpys667
- *
- * This file contains code derived from GrimAC.
- * The original authors of GrimAC are credited below.
- *
- * Copyright (c) 2021-2026 GrimAC, DefineOutside and contributors.
- *
- * MKAC is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * MKAC is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
 package ru.korpys667.mkac.punishment;
 
 import java.util.*;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import ru.korpys667.mkac.MKAC;
@@ -126,7 +103,7 @@ public class PunishmentManager {
         database.resetViolationLevel(mkPlayer.getUuid(), group.getGroupName());
       } else if (commandLower.startsWith("[broadcast] ")) {
         final String message = command.substring("[broadcast] ".length());
-        final Component component =
+        final String formatted =
             MessageUtil.format(
                 message,
                 "player",
@@ -142,7 +119,7 @@ public class PunishmentManager {
             .runTask(
                 plugin,
                 () -> {
-                  plugin.getAdventure().players().sendMessage(component);
+                  Bukkit.broadcastMessage(formatted);
                 });
       } else {
         String formattedCmd =
@@ -159,7 +136,7 @@ public class PunishmentManager {
   }
 
   private void sendAlert(ICheck check, int vl, String verbose) {
-    final Component message =
+    final String message =
         MessageUtil.getMessage(
             Message.ALERTS_FORMAT,
             "player",

@@ -32,8 +32,6 @@ dependencies {
     implementation("com.github.retrooper:packetevents-spigot:2.13.0")
     implementation("org.incendo:cloud-paper:2.0.0-beta.16")
     implementation("org.incendo:cloud-processors-requirements:1.0.0-rc.1")
-    implementation("net.kyori:adventure-platform-bukkit:4.4.1")
-    implementation("net.kyori:adventure-text-minimessage:4.17.0")
     implementation("com.zaxxer:HikariCP:7.0.2")
     implementation("org.slf4j:slf4j-jdk14:2.0.17")
     compileOnly("org.geysermc.floodgate:api:2.0-SNAPSHOT")
@@ -65,9 +63,6 @@ tasks.shadowJar {
     minimize {
         exclude(dependency("org.slf4j:slf4j-api"))
         exclude(dependency("org.slf4j:slf4j-jdk14"))
-        exclude(dependency("net.kyori:adventure-text-serializer-gson"))
-        exclude(dependency("net.kyori:adventure-text-serializer-json"))
-        exclude(dependency("net.kyori:adventure-text-serializer-legacy"))
         exclude(dependency("io.lettuce:lettuce-core"))
         exclude(dependency("com.fasterxml.jackson.core:jackson-databind"))
         exclude(dependency("com.fasterxml.jackson.core:jackson-core"))
@@ -80,7 +75,6 @@ tasks.shadowJar {
 
     relocate("com.github.retrooper.packetevents", "ru.korpys667.mkac.libs.packetevents.api")
     relocate("io.github.retrooper.packetevents", "ru.korpys667.mkac.libs.packetevents.impl")
-    relocate("net.kyori", "ru.korpys667.mkac.libs.kyori")
     relocate("com.google.gson", "ru.korpys667.mkac.libs.gson")
     relocate("org.incendo", "ru.korpys667.mkac.libs.incendo")
     relocate("io.leangen.geantyref", "ru.korpys667.mkac.libs.geantyref")

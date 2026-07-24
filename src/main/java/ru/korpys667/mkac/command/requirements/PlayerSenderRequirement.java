@@ -1,6 +1,5 @@
 package ru.korpys667.mkac.command.requirements;
 
-import net.kyori.adventure.text.Component;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.incendo.cloud.context.CommandContext;
 import ru.korpys667.mkac.command.SenderRequirement;
@@ -14,7 +13,7 @@ public final class PlayerSenderRequirement implements SenderRequirement {
       new PlayerSenderRequirement();
 
   @Override
-  public @NonNull Component errorMessage(Sender sender) {
+  public @NonNull String errorMessage(Sender sender) {
     return MessageUtil.getMessage(Message.RUN_AS_PLAYER);
   }
 

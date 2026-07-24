@@ -38,7 +38,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import ru.korpys667.mkac.MKAC;
@@ -163,19 +162,13 @@ public class MKPlayer {
     user.sendPacket(packet);
   }
 
-  public void disconnect(Component reason) {
-    String textReason =
-        net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection()
-            .serialize(reason);
-    user.sendPacket(
-        new com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDisconnect(
-            reason));
-    user.closeConnection();
+  public void disconnect(String reason) {
+    final String coloredReason = reason;
 
     if (Bukkit.isPrimaryThread()) {
-      player.kickPlayer(textReason);
+      player.kickPlayer(coloredReason);
     } else {
-      Bukkit.getScheduler().runTask(plugin, () -> player.kickPlayer(textReason));
+      Bukkit.getScheduler().runTask(plugin, () -> player.kickPlayer(coloredReason));
     }
   }
 

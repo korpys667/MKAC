@@ -1,31 +1,8 @@
-/*
- * This file is part of MKAC - https://github.com/korpys667/MKAC
- * Copyright (C) 2026 korpys667
- *
- * This file contains code derived from GrimAC.
- * The original authors of GrimAC are credited below.
- *
- * Copyright (c) 2021-2026 GrimAC, DefineOutside and contributors.
- *
- * MKAC is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * MKAC is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
 package ru.korpys667.mkac.command;
 
 import io.leangen.geantyref.TypeToken;
 import java.util.function.Function;
-import net.kyori.adventure.text.ComponentLike;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.md_5.bungee.api.ChatColor;
 import org.incendo.cloud.exception.InvalidSyntaxException;
 import org.incendo.cloud.key.CloudKey;
 import org.incendo.cloud.processors.requirements.RequirementApplicable;
@@ -93,18 +70,12 @@ public class CommandRegister {
   private static <E extends Exception> void registerExceptionHandler(
       org.incendo.cloud.CommandManager<Sender> commandManager,
       Class<E> ex,
-      Function<E, ComponentLike> toComponent) {
+      Function<E, String> toMessage) {
     commandManager
         .exceptionController()
         .registerHandler(
             ex,
             (c) ->
-                c.context()
-                    .sender()
-                    .sendMessage(
-                        toComponent
-                            .apply(c.exception())
-                            .asComponent()
-                            .colorIfAbsent(NamedTextColor.RED)));
+                c.context().sender().sendMessage(ChatColor.RED + toMessage.apply(c.exception())));
   }
 }

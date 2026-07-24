@@ -1,31 +1,12 @@
-/*
- * This file is part of MKAC - https://github.com/korpys667/MKAC
- * Copyright (C) 2026 korpys667
- *
- * MKAC is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * MKAC is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
 package ru.korpys667.mkac.command.commands;
 
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -128,7 +109,7 @@ public class ProbCommand implements MKCommand, Listener {
     final UUID viewerId = viewer.getUniqueId();
     final UUID targetId = target.getUniqueId();
 
-    final ActionBarComponents components = new ActionBarComponents(localeManager);
+    final ActionBarStrings strings = new ActionBarStrings(localeManager);
 
     final BukkitTask task =
         plugin
@@ -166,12 +147,12 @@ public class ProbCommand implements MKCommand, Listener {
                     return;
                   }
 
-                  sendActionBar(onlineViewer, buildActionBar(aiCheck, onlineTarget, components));
+                  sendActionBar(onlineViewer, buildActionBar(aiCheck, onlineTarget, strings));
                 },
                 0L,
                 2L);
 
-    final ProbSession newSession = new ProbSession(targetId, task, components);
+    final ProbSession newSession = new ProbSession(targetId, task, strings);
     activeSessions.put(viewerId, newSession);
   }
 
@@ -179,87 +160,79 @@ public class ProbCommand implements MKCommand, Listener {
     final ProbSession session = activeSessions.remove(viewer.getUniqueId());
     if (session != null) {
       session.task().cancel();
-      sendActionBar(viewer, Component.empty());
+      sendActionBar(viewer, "");
     }
   }
 
-  private Component buildActionBar(AICheck aiCheck, Player target, ActionBarComponents components) {
+  private String buildActionBar(AICheck aiCheck, Player target, ActionBarStrings strings) {
     final double probability = aiCheck.getLastProbability();
     final double violationLevel = aiCheck.getBuffer();
     final int ping = target.getPing();
 
-    final TextColor probColor = getProbColor(probability);
-    final TextColor vlColor = getVlColor(violationLevel);
-    final TextColor pingColor = getPingColor(ping);
+    final ChatColor probColor = getProbColor(probability);
+    final ChatColor vlColor = getVlColor(violationLevel);
+    final ChatColor pingColor = getPingColor(ping);
 
-    TextComponent bufferComponent =
-        Component.text(String.format(Locale.US, "%.2f", violationLevel), vlColor);
+    String bufferStr = String.format(Locale.US, "%.2f", violationLevel);
     if (violationLevel > 30) {
-      bufferComponent = bufferComponent.decorate(TextDecoration.BOLD);
+      bufferStr = ChatColor.BOLD + bufferStr;
     }
 
-    return Component.text()
-        .append(components.labelProb().color(probColor))
-        .append(components.openParen().color(probColor))
-        .append(Component.text(target.getName(), probColor))
-        .append(components.closeParen().color(probColor))
-        .append(Component.text(String.format(Locale.US, "%.4f", probability), probColor))
-        .append(components.separator())
-        .append(components.labelBuffer().color(vlColor))
-        .append(components.colon().color(vlColor))
-        .append(bufferComponent)
-        .append(components.separator())
-        .append(components.labelPing().color(pingColor))
-        .append(components.colon().color(pingColor))
-        .append(Component.text(ping, pingColor))
-        .append(components.suffixPing().color(pingColor))
-        .build();
+    return probColor
+        + strings.labelProb()
+        + " ("
+        + target.getName()
+        + "): "
+        + String.format(Locale.US, "%.4f", probability)
+        + ChatColor.DARK_GRAY
+        + strings.separator()
+        + vlColor
+        + strings.labelBuffer()
+        + ": "
+        + bufferStr
+        + ChatColor.DARK_GRAY
+        + strings.separator()
+        + pingColor
+        + strings.labelPing()
+        + ": "
+        + ping
+        + strings.suffixPing();
   }
 
-  private void sendActionBar(Player player, Component message) {
+  private void sendActionBar(Player player, String message) {
     if (player == null || !player.isOnline()) return;
-    plugin.getAdventure().player(player).sendActionBar(message);
+    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
   }
 
-  private TextColor getProbColor(double probability) {
-    if (probability > 0.9) return NamedTextColor.RED;
-    if (probability > 0.5) return NamedTextColor.YELLOW;
-    return NamedTextColor.GREEN;
+  private ChatColor getProbColor(double probability) {
+    if (probability > 0.9) return ChatColor.RED;
+    if (probability > 0.5) return ChatColor.YELLOW;
+    return ChatColor.GREEN;
   }
 
-  private TextColor getVlColor(double violationLevel) {
-    if (violationLevel > 30) return NamedTextColor.DARK_RED;
-    if (violationLevel > 15) return NamedTextColor.RED;
-    return NamedTextColor.GREEN;
+  private ChatColor getVlColor(double violationLevel) {
+    if (violationLevel > 30) return ChatColor.DARK_RED;
+    if (violationLevel > 15) return ChatColor.RED;
+    return ChatColor.GREEN;
   }
 
-  private TextColor getPingColor(int ping) {
-    if (ping > 150) return NamedTextColor.RED;
-    if (ping > 80) return NamedTextColor.YELLOW;
-    return NamedTextColor.GREEN;
+  private ChatColor getPingColor(int ping) {
+    if (ping > 150) return ChatColor.RED;
+    if (ping > 80) return ChatColor.YELLOW;
+    return ChatColor.GREEN;
   }
 
-  private record ProbSession(UUID targetUuid, BukkitTask task, ActionBarComponents components) {}
+  private record ProbSession(UUID targetUuid, BukkitTask task, ActionBarStrings strings) {}
 
-  private record ActionBarComponents(
-      Component labelProb,
-      Component labelBuffer,
-      Component labelPing,
-      Component separator,
-      Component suffixPing,
-      Component openParen,
-      Component closeParen,
-      Component colon) {
-    ActionBarComponents(LocaleManager lm) {
+  private record ActionBarStrings(
+      String labelProb, String labelBuffer, String labelPing, String separator, String suffixPing) {
+    ActionBarStrings(LocaleManager lm) {
       this(
-          Component.text(lm.getRawMessage(Message.PROB_FORMAT_LABEL_PROB)),
-          Component.text(lm.getRawMessage(Message.PROB_FORMAT_LABEL_BUFFER)),
-          Component.text(lm.getRawMessage(Message.PROB_FORMAT_LABEL_PING)),
-          Component.text(lm.getRawMessage(Message.PROB_FORMAT_SEPARATOR), NamedTextColor.DARK_GRAY),
-          Component.text(lm.getRawMessage(Message.PROB_FORMAT_SUFFIX_PING)),
-          Component.text(" ("),
-          Component.text("): "),
-          Component.text(": "));
+          MessageUtil.colorize(lm.getRawMessage(Message.PROB_FORMAT_LABEL_PROB)),
+          MessageUtil.colorize(lm.getRawMessage(Message.PROB_FORMAT_LABEL_BUFFER)),
+          MessageUtil.colorize(lm.getRawMessage(Message.PROB_FORMAT_LABEL_PING)),
+          MessageUtil.colorize(lm.getRawMessage(Message.PROB_FORMAT_SEPARATOR)),
+          MessageUtil.colorize(lm.getRawMessage(Message.PROB_FORMAT_SUFFIX_PING)));
     }
   }
 }

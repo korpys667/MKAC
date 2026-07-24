@@ -1,20 +1,3 @@
-/*
- * This file is part of GrimAC - https://github.com/GrimAnticheat/Grim
- * Copyright (C) 2021-2026 GrimAC, DefineOutside and contributors
- *
- * GrimAC is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * GrimAC is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
 package ru.korpys667.mkac.checks.impl.misc;
 
 import com.github.retrooper.packetevents.PacketEvents;
@@ -25,7 +8,6 @@ import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.wrapper.configuration.client.WrapperConfigClientPluginMessage;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPluginMessage;
 import lombok.Getter;
-import net.kyori.adventure.text.Component;
 import ru.korpys667.mkac.alert.AlertManager;
 import ru.korpys667.mkac.alert.AlertType;
 import ru.korpys667.mkac.checks.AbstractCheck;
@@ -91,10 +73,10 @@ public class ClientBrand extends AbstractCheck implements PacketCheck {
     mkPlayer.setBrand(brand);
 
     if (!configManager.isClientIgnored(brand)) {
-      Component component =
+      String message =
           MessageUtil.getMessage(
               Message.BRAND_NOTIFICATION, "player", mkPlayer.getPlayer().getName(), "brand", brand);
-      alertManager.send(component, AlertType.BRAND);
+      alertManager.send(message, AlertType.BRAND);
     }
 
     final boolean hasReachExploit =

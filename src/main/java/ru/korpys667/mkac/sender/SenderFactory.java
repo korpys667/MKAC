@@ -18,7 +18,6 @@
 package ru.korpys667.mkac.sender;
 
 import java.util.UUID;
-import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.incendo.cloud.SenderMapper;
@@ -70,11 +69,6 @@ public class SenderFactory implements SenderMapper<CommandSender, Sender> {
     }
 
     @Override
-    public void sendMessage(Component message) {
-      plugin.getAdventure().player(player).sendMessage(message);
-    }
-
-    @Override
     public boolean hasPermission(String permission) {
       return player.hasPermission(permission);
     }
@@ -122,11 +116,6 @@ public class SenderFactory implements SenderMapper<CommandSender, Sender> {
     @Override
     public void sendMessage(String message) {
       sender.sendMessage(message);
-    }
-
-    @Override
-    public void sendMessage(Component message) {
-      plugin.getAdventure().sender(sender).sendMessage(message);
     }
 
     @Override

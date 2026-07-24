@@ -6,8 +6,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import ru.korpys667.mkac.MKAC;
 import ru.korpys667.mkac.alert.AlertManager;
 import ru.korpys667.mkac.alert.AlertType;
@@ -19,9 +17,6 @@ public class CrossServerAlertService implements CrossServerPublisher {
 
   private static final String DEFAULT_SERVER_NAME = "server-1";
   private static final String DEFAULT_CHANNEL = "mkac:alerts";
-
-  private static final GsonComponentSerializer COMPONENT_SERIALIZER =
-      GsonComponentSerializer.gson();
 
   private final ConfigManager configManager;
   private final RedisManager redisManager;
@@ -91,12 +86,11 @@ public class CrossServerAlertService implements CrossServerPublisher {
   }
 
   @Override
-  public void publish(AlertType type, Component component) {
+  public void publish(AlertType type, String message) {
     if (!enabled || !mirroredTypes.contains(type)) return;
 
     try {
-      String componentJson = COMPONENT_SERIALIZER.serialize(component);
-      CrossServerAlert alert = new CrossServerAlert(origin, serverName, type.name(), componentJson);
+      CrossServerAlert alert = new CrossServerAlert(origin, serverName, type.name(), message);
       String payload = mapper.writeValueAsString(alert);
       redisManager.publishAsync(channel, payload);
     } catch (Exception e) {
@@ -113,23 +107,16 @@ public class CrossServerAlertService implements CrossServerPublisher {
       AlertType type = AlertType.valueOf(alert.getType());
       if (!mirroredTypes.contains(type)) return;
 
-      Component component = COMPONENT_SERIALIZER.deserialize(alert.getComponent());
-      component = stripClickEvents(component);
-
-      Component prefixed =
+      String prefixed =
           MessageUtil.getMessage(Message.CROSS_SERVER_ALERT_PREFIX, "server", alert.getServer())
-              .append(Component.space())
-              .append(component);
+              + " "
+              + alert.getComponent();
 
       plugin.getServer().getScheduler().runTask(plugin, () -> alertManager.deliver(prefixed, type));
 
     } catch (Exception e) {
       logger.log(Level.FINE, "[CrossServer] Failed to process incoming alert", e);
     }
-  }
-
-  private Component stripClickEvents(Component component) {
-    return component.clickEvent(null);
   }
 
   public void shutdown() {
