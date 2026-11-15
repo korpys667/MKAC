@@ -1,0 +1,247 @@
+# Do not change this value manually.
+config-version: 2
+
+update: 2
+storage:
+  per-player: true
+  # Load a player's saved settings asynchronously on join, so the first frame never
+  # waits on the database.
+  prewarm-on-join: true
+
+limits:
+  # Max monitor sessions on this server at once. 0 = unlimited.
+  max-sessions: 32
+  # Max viewers watching the same player. 0 = unlimited.
+  max-viewers-per-target: 0
+
+# Settings for "/mkac monitor all" and "/mkac monitor suspicious".
+auto:
+  # Buffer a player needs to enter the suspicious list.
+  # -1 takes suspicious.alerts.buffer from config.yml.
+  suspicious-buffer: -1
+  # A listed player stays until the buffer drops below this share of the value above.
+  exit-ratio: 0.8
+  # How often the watched set is recalculated, in ticks.
+  refresh-ticks: 20
+  # How long a dropped player's data is kept, in ticks, so a return keeps the trend.
+  linger-ticks: 60
+  # Ticks after the last hit during which a player still counts as fighting. They list first.
+  combat-ticks: 100
+view:
+  update: 2
+  # Scoreboard display slot: 0 = tab list, 1 = sidebar, 2 = below name.
+  slot: 2
+  rebind-ticks: 100
+  resync-ticks: 100
+  ping-refresh-ticks: 20
+  ping-bucket-ms: 10
+  position: "BELOW_NAME" # ABOVE_NAME | BELOW_NAME
+  fallback:
+    prob: "--"
+    buffer: "--"
+  # Templates below also accept {tier}: NONE, LOW, MID or HIGH.
+  format:
+    prob-decimals: 0
+    buffer-decimals: 2
+  # {label_tag} is the label template below, empty when nothing is detected.
+  # BELOW_NAME draws the below line only, ABOVE_NAME draws prefix and suffix.
+  template:
+    prefix: "<dark_gray>[</dark_gray><white>{prob}%</white>{label_tag}<dark_gray> • </dark_gray><yellow>{buffer}</yellow><dark_gray> • </dark_gray><aqua>{ping}ms</aqua><dark_gray>]</dark_gray> "
+    label: " <color:#C4B5FD>{label}</color>"
+    suffix: ""
+    below-title: "" # legacy fallback: "% AI"
+    below: "<dark_gray>[</dark_gray><white>{prob}%</white>{label_tag}<dark_gray> • </dark_gray><yellow>{buffer}</yellow><dark_gray> • </dark_gray><aqua>{ping}ms</aqua><dark_gray>]</dark_gray>"
+defaults:
+  mode: compact           # compact | full
+  theme: calm             # calm | vivid | minimal
+  show-ping: true
+  show-dmg: true
+  show-trend: true
+  show-collect: true      # requires mkac.monitor.collect to actually render
+  show-inference: true    # requires mkac.monitor.collect to actually render
+  show-name: auto         # auto | always | never
+  # One or more, comma separated: actionbar | bossbar | sidebar | chat | tablist
+  output: actionbar
+  chat-style: live        # live | summary
+behavior:
+  keep-length: true
+  show-neutral-when-hidden: true
+  keepalive-ticks: 20    # resend unchanged action bar every N ticks (20 ticks = 1 second)
+  ping-refresh-ticks: 20 # how often the target's ping is read
+  ping-bucket-ms: 10     # round ping to N ms so jitter does not force a redraw
+  trend-decay-ticks: 100 # reset trend to zero after N ticks without a probability change
+  # One-line outputs show one detection at a time and take turns between them this often.
+  # 0 pins them to the strongest. A player overrides this with "/mkac monitor label" and one of
+  # auto, off, all or a label key: "all" lists every detection at once instead of taking turns.
+  label-rotate-ticks: 40
+  neutral:
+    ping: "<gray>Ping --</gray>"
+    dmg: "<gray>Dmg 1.00x</gray>"
+    trend: "<gray>+0.00</gray>"
+  name:
+    max-length: 12
+    truncate-suffix: "…"
+  label:
+    # key or title. The one-line outputs are a row of numbers with units, and "30% aim" sits in
+    # that rhythm the way "30% Aim Assist" does not. The roomy outputs always spell the title out.
+    style: key
+    # Capped so a long name cannot swallow a one-line output.
+    max-length: 12
+    # Pad the rotating name and its numbers to the widest label. The font is proportional, so
+    # the padding reads as a gap rather than a column.
+    keep-width: false
+format:
+  prob:
+    decimals: 0
+  trend:
+    decimals: 2
+    threshold: 0.0   # 0 = auto (based on decimals)
+  buffer:
+    decimals: 2
+  ping:
+    min-width: 2
+  dmg:
+    decimals: 2
+    hide-when-default: false
+# Tokens: name, prob, trend, buffer, label, labels, ping, dmg, prob90, tier, score, rule,
+#         collect, inference
+# prob and buffer carry the focused detection: {label_suffix} appends its name, "30% aim".
+# label is that name alone and takes {position} (" 2/3") and {more} (" +2"); labels lists them all.
+# rule carries how long it has been running, e.g. "blatant 2m19s".
+# tier is the mitigation step the player is on right now: NONE, LOW, MID or HIGH.
+modes:
+  compact: [name, prob, trend, buffer, collect, inference]
+  full: [name, prob, trend, buffer, score, ping, dmg, rule, collect, inference]
+# Where the monitor is drawn. A player picks one with "/mkac monitor output <kind>".
+# Templates below accept three placeholder forms:
+#   {prob}     the raw formatted value, no colour
+#   {prob!}    the same value wrapped in the player's theme template
+#   {headline} the whole modes:<mode> line, joined with the theme separator
+# An output that needs more or less than the chosen mode writes its own template out of the tokens.
+outputs:
+  actionbar:
+    enabled: true
+    # -1 inherits behavior.keepalive-ticks. Set a positive value to override it here.
+    keepalive-ticks: -1
+    template: "{headline}"
+
+  bossbar:
+    enabled: true
+    title: "{headline}"
+    overlay: PROGRESS          # PROGRESS | NOTCHED_6 | NOTCHED_10 | NOTCHED_12 | NOTCHED_20
+    progress: prob             # prob | buffer | none
+    progress-buffer-max: 50.0  # buffer value that fills the bar when progress is "buffer"
+    color: auto                # auto | PINK | BLUE | RED | GREEN | YELLOW | PURPLE | WHITE
+    max-bars: 3                # also caps how many players can be watched at once
+    overflow-template: "<gray>\u2026 and {count} more monitored</gray>"
+    color-thresholds:
+      yellow: 0.40
+      red: 0.75
+
+  sidebar:
+    enabled: true
+    slot: 1                    # 0 = tab list, 1 = sidebar, 2 = below name
+    title: "<gradient:#8e9eab:#eef2f3>MKAC</gradient>"
+    reassert-ticks: 100        # re-claim the slot every N ticks; 0 gives it up
+    drop-blank-lines: false
+    unavailable-line: "<gray>no data</gray>"
+    # Drawn between two watched players. An empty string leaves a blank line.
+    target-separator: ""
+    labels-title: "<gray>Buffer</gray>"
+    label-line: "<color:#C4B5FD>{label}</color>  <white>{prob}%</white>  <yellow>◆ {buffer}</yellow>"
+    no-labels-line: "<gray>Buffer</gray>  {buffer!}"
+    labels-overflow: "<dark_gray>… and {count} more</dark_gray>"
+    # Max 15 lines. Requires Minecraft 1.20.3 or newer.
+    # {label_lines} becomes labels-title plus one label-line per label, and each row carries that
+    # label's own probability and buffer. With no labels it becomes no-labels-line instead.
+    lines:
+      - "<gray>Target</gray>  <white>{name}</white>"
+      - ""
+      - "<gray>Prob</gray>    <bold><white>{prob}%</white></bold>"
+      - "<gray>Trend</gray>   {trend!}"
+      - "{label_lines}"
+      - "<gray>Ping</gray>    {ping!}"
+      - "<gray>Dmg</gray>     {dmg!}"
+
+  chat:
+    enabled: true
+    # Used when the player's chat-style is "summary": one summary line every interval.
+    summary:
+      interval-ticks: 200
+      skip-unchanged: true
+      template: "<prefix> {headline}"
+    # Used when the player's chat-style is "live": one line per AI detection.
+    live:
+      min-probability: 0.0
+      always-show-flagged: true
+      cooldown-ticks: 20
+      unknown-ping: "--"
+      # {ping} comes from the last render tick; the AI detection itself carries no ping.
+      # {label_hover} wraps label-hover below in a hover with every label's buffer. The line
+      # already names the detection through {prob}, so it is out of the default template.
+      label-hover: "<hover:show_text:'<gray>Buffer by detection:</gray> <white>{labels}</white>'>{label!}</hover>"
+      template: "<prefix> <white>{name}</white> <gray>\u00bb</gray> {prob!} <gray>\u2022</gray> {trend!} <gray>\u2022</gray> {buffer!}"
+      flagged-template: "<prefix> <red>\u26a0</red> <white>{name}</white> <gray>\u00bb</gray> {prob!} <gray>\u2022</gray> {trend!} <gray>\u2022</gray> {buffer!} <gray>\u2022</gray> {dmg!}"
+      # Used instead of the two above by a player who ran "/mkac monitor label all": every
+      # detection with its own probability and buffer in one line, so nothing waits for a turn.
+      all-labels-template: "<prefix> <white>{name}</white> <gray>\u00bb</gray> {labels!} <gray>\u2022</gray> {trend!}"
+      flagged-all-labels-template: "<prefix> <red>\u26a0</red> <white>{name}</white> <gray>\u00bb</gray> {labels!} <gray>\u2022</gray> {trend!} <gray>\u2022</gray> {dmg!}"
+
+  tablist:
+    enabled: true
+    header: "<gradient:#8e9eab:#eef2f3>MKAC Monitor</gradient>"
+    # A line that renders empty is dropped, so an unlabelled model leaves no blank row. So is a
+    # line that only repeats a row above it, which is where the list ends up under "label all".
+    footer:
+      - "{headline}"
+      - "{labels!}"
+
+theme:
+  calm:
+    name: "<gray>@{name}</gray>"
+    prob: "<bold><white>{prob}%</white></bold><color:#C4B5FD>{label_suffix}</color>"
+    trend: "<color:#86EFAC>{trend}</color>"
+    buffer: "<color:#FBBF24>◆ {buffer}</color>"
+    label: "<color:#C4B5FD>{label}</color><dark_gray>{position}</dark_gray>"
+    labels: "<gray>{labels}</gray>"
+    ping: "<color:#BFDBFE>Ping {ping}ms</color>"
+    dmg: "<color:#FECACA>Dmg {dmg}x</color>"
+    collect: "<color:#86EFAC>{status} ticks</color> <dark_gray>({label} w{windows} {elapsed})</dark_gray>"
+    inference: "<color:#93C5FD>inf {status}</color>"
+    prob90: "<color:#F87171>90+ {prob90}</color>"
+    tier: "<color:#FBBF24>Mit {tier}</color>"
+    score: "<color:#FBBF24>◇ {score}</color>"
+    rule: "<color:#FBBF24>{rule}</color>"
+    sep: "<dark_gray> • </dark_gray>"
+  vivid:
+    name: "<gray>@{name}</gray>"
+    prob: "<bold><white>{prob}%</white></bold><color:#C4B5FD>{label_suffix}</color>"
+    trend: "<green>{trend}</green>"
+    buffer: "<yellow>◆ {buffer}</yellow>"
+    label: "<light_purple>{label}</light_purple><gray>{position}</gray>"
+    labels: "<gray>{labels}</gray>"
+    ping: "<aqua>Ping {ping}ms</aqua>"
+    dmg: "<red>Dmg {dmg}x</red>"
+    collect: "<white>{status} ticks</white> <gray>({label} w{windows} {elapsed})</gray>"
+    inference: "<aqua>inf {status}</aqua>"
+    prob90: "<red>90+ {prob90}</red>"
+    tier: "<gold>Mit {tier}</gold>"
+    score: "<gold>◇ {score}</gold>"
+    rule: "<gold>{rule}</gold>"
+    sep: "<dark_gray> • </dark_gray>"
+  minimal:
+    name: "<gray>@{name}</gray>"
+    prob: "<white>{prob}%</white><gray>{label_suffix}</gray>"
+    trend: "<gray>{trend}</gray>"
+    buffer: "<yellow>◆ {buffer}</yellow>"
+    label: "<light_purple>{label}</light_purple><gray>{position}</gray>"
+    labels: "<gray>{labels}</gray>"
+    ping: "<gray>{ping}ms</gray>"
+    dmg: "<gray>{dmg}x</gray>"
+    collect: "<gray>{status} ticks</gray>"
+    inference: "<gray>inf {status}</gray>"
+    prob90: "<gray>90+ {prob90}</gray>"
+    tier: "<gray>Mit {tier}</gray>"
+    score: "<gray>◇ {score}</gray>"
+    rule: "<gray>{rule}</gray>"
+    sep: "<dark_gray> • </dark_gray>"

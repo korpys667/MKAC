@@ -1,0 +1,214 @@
+/*
+ * This file is part of MKAC - https://github.com/korpys667/MKAC
+ * Copyright (C) 2026 korpys667
+ *
+ * MKAC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MKAC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+package ru.korpys667.utils
+
+enum class Message(val path: String) {
+  PREFIX("prefix"),
+  ALERTS_ENABLED("alerts-enabled"),
+  ALERTS_DISABLED("alerts-disabled"),
+  ALERTS_FORMAT("alerts-format"),
+  ALERTS_LABELS_LINE("alerts-labels-line"),
+  PLAYER_NOT_FOUND("player-not-found"),
+  RUN_AS_PLAYER("run-as-player"),
+  RELOAD_START("reload-start"),
+  RELOAD_SUCCESS("reload-success"),
+  STORAGE_DEGRADED("storage.degraded"),
+  MITIGATIONS_DISABLED("mitigations.disabled"),
+  MITIGATIONS_NOBODY("mitigations.nobody"),
+  MITIGATIONS_HEADER("mitigations.header"),
+  MITIGATIONS_ROW("mitigations.row"),
+  MITIGATIONS_NO_DATA("mitigations.no-data"),
+  MITIGATIONS_DETAIL("mitigations.detail"),
+  MITIGATIONS_CLEARED("mitigations.cleared"),
+  MITIGATIONS_ALERT("mitigations.alert"),
+  MITIGATIONS_PENDING("mitigations.pending"),
+  MITIGATIONS_HISTOGRAM("mitigations.histogram"),
+  MITIGATIONS_HISTORY_HEADER("mitigations.history-header"),
+  MITIGATIONS_HISTORY_ENTRY("mitigations.history-entry"),
+  MITIGATIONS_HISTORY_EMPTY("mitigations.history-empty"),
+  MITIGATIONS_LOGS_HEADER("mitigations.logs-header"),
+  MITIGATIONS_LOGS_ENTRY("mitigations.logs-entry"),
+  MITIGATIONS_LOGS_EMPTY("mitigations.logs-empty"),
+  MITIGATIONS_LOG_OFF("mitigations.log-off"),
+  MITIGATIONS_HINT_MELEE("mitigations.hint.melee"),
+  MITIGATIONS_HINT_PROJECTILE("mitigations.hint.projectile"),
+  MITIGATIONS_HINT_CRYSTAL("mitigations.hint.crystal"),
+  MITIGATIONS_HINT_INCOMING("mitigations.hint.incoming"),
+  MITIGATIONS_HINT_HEALING("mitigations.hint.healing"),
+  MITIGATIONS_HINT_CANCEL("mitigations.hint.cancel"),
+  MITIGATION_ALERTS_ENABLED("mitigations.alerts-enabled"),
+  MITIGATION_ALERTS_DISABLED("mitigations.alerts-disabled"),
+  MITIGATIONS_SKIP_NONE("mitigations.skip.none"),
+  MITIGATIONS_SKIP_TURNED_OFF("mitigations.skip.turned-off"),
+  MITIGATIONS_SKIP_EXEMPT("mitigations.skip.exempt"),
+  MITIGATIONS_SKIP_CHECKS_DISABLED("mitigations.skip.checks-disabled"),
+  MITIGATIONS_SKIP_NO_MITIGATE("mitigations.skip.no-mitigate"),
+  MITIGATIONS_SKIP_BEDROCK("mitigations.skip.bedrock"),
+  MITIGATIONS_SKIP_DISABLED_REGION("mitigations.skip.disabled-region"),
+  MITIGATIONS_SKIP_TOO_FEW_ANSWERS("mitigations.skip.too-few-answers"),
+  BRAND_ALERTS_ENABLED("brand.alerts-enabled"),
+  BRAND_ALERTS_DISABLED("brand.alerts-disabled"),
+  BRAND_NOTIFICATION("brand.notification"),
+  BRAND_DISCONNECT_FORGE("brand.disconnect-forge"),
+
+  // DataCollect
+  COLLECT_DETAILS_REQUIRED("collect.details-required"),
+  COLLECT_INVALID_TYPE("collect.invalid-type"),
+  COLLECT_START_SUCCESS("collect.start-success"),
+  COLLECT_START_RESTARTED("collect.start-restarted"),
+  COLLECT_STOP_SUCCESS("collect.stop-success"),
+  COLLECT_STOP_FAIL("collect.stop-fail"),
+  COLLECT_CANCEL_SUCCESS("collect.cancel-success"),
+  COLLECT_STATUS_HEADER("collect.status-header"),
+  COLLECT_STATUS_PLAYER("collect.status-player"),
+  COLLECT_STATUS_NONE("collect.status-none"),
+  COLLECT_STATUS_NO_SESSION("collect.status-no-session"),
+
+  // Monitor
+  MONITOR_ENABLED("monitor.enabled"),
+  MONITOR_DISABLED("monitor.disabled"),
+  MONITOR_NO_DATA("monitor.no-data"),
+  MONITOR_NO_AICHECK("monitor.no-aicheck"),
+  MONITOR_SETTING_UPDATED("monitor.setting-updated"),
+  MONITOR_INVALID_SETTING("monitor.invalid-setting"),
+  MONITOR_NO_PERMISSION_OTHER("monitor.no-permission-other"),
+  MONITOR_NOT_ACTIVE("monitor.not-active"),
+  MONITOR_RESET("monitor.reset"),
+  MONITOR_LIST_HEADER("monitor.list-header"),
+  MONITOR_LIST_ENTRY("monitor.list-entry"),
+  MONITOR_LIST_EMPTY("monitor.list-empty"),
+  MONITOR_OUTPUT_UPDATED("monitor.output-updated"),
+  MONITOR_OUTPUT_INVALID("monitor.output-invalid"),
+  MONITOR_OUTPUT_NO_PERMISSION("monitor.output-no-permission"),
+  MONITOR_OUTPUT_DISABLED("monitor.output-disabled"),
+  MONITOR_OUTPUT_UNSUPPORTED("monitor.output-unsupported"),
+  MONITOR_OUTPUT_LAST("monitor.output-last"),
+  MONITOR_OUTPUT_HEADER("monitor.output-header"),
+  MONITOR_OUTPUT_ENTRY("monitor.output-entry"),
+  MONITOR_OUTPUT_ENTRY_HOVER("monitor.output-entry-hover"),
+  MONITOR_OUTPUT_STATE_ACTIVE("monitor.output-state-active"),
+  MONITOR_OUTPUT_STATE_AVAILABLE("monitor.output-state-available"),
+  MONITOR_OUTPUT_STATE_LOCKED("monitor.output-state-locked"),
+  MONITOR_OUTPUT_STATE_OFF("monitor.output-state-off"),
+  MONITOR_OUTPUT_STATE_UNSUPPORTED("monitor.output-state-unsupported"),
+  MONITOR_TARGET_ADDED("monitor.target-added"),
+  MONITOR_TARGET_REMOVED("monitor.target-removed"),
+  MONITOR_TARGET_ALREADY("monitor.target-already"),
+  MONITOR_TARGET_NOT_WATCHED("monitor.target-not-watched"),
+  MONITOR_TARGETS_CLEARED("monitor.targets-cleared"),
+  MONITOR_TARGET_LIMIT("monitor.target-limit"),
+  MONITOR_TARGET_OVERFLOW("monitor.target-overflow"),
+  MONITOR_MULTI_NO_PERMISSION("monitor.multi-no-permission"),
+  MONITOR_AUTO_ENABLED("monitor.auto-enabled"),
+  MONITOR_AUTO_STOPPED("monitor.auto-stopped"),
+  MONITOR_AUTO_MANUAL("monitor.auto-manual"),
+  MONITOR_AUTO_NOT_ACTIVE("monitor.auto-not-active"),
+  MONITOR_AUTO_NO_PERMISSION("monitor.auto-no-permission"),
+  MONITOR_LIMIT_REACHED("monitor.limit-reached"),
+  MONITOR_SETTINGS_HEADER("monitor.settings-header"),
+  MONITOR_SETTINGS_ENTRY("monitor.settings-entry"),
+  MONITOR_SETTINGS_ENTRY_HOVER("monitor.settings-entry-hover"),
+  MONITOR_SETTINGS_HINT("monitor.settings-hint"),
+  MONITOR_HELP("monitor.help"),
+  VIEW_ENABLED("view.enabled"),
+  VIEW_DISABLED("view.disabled"),
+
+  // Profile
+  PROFILE_NO_DATA("profile.no-data"),
+  PROFILE_LINES("profile.lines"),
+  PROFILE_OFFLINE_LINES("profile.offline-lines"),
+
+  // History
+  HISTORY_DISABLED("history.disabled"),
+  HISTORY_HEADER("history.header"),
+  HISTORY_ENTRY("history.entry"),
+  HISTORY_NO_VIOLATIONS("history.no-violations"),
+
+  // Logs
+  LOGS_HEADER("logs.header"),
+  LOGS_ENTRY("logs.entry"),
+  LOGS_NO_VIOLATIONS("logs.no-violations"),
+
+  // Punish
+  PUNISH_RESET_SUCCESS("punish.reset-success"),
+  BUFFER_RESET_ALL("buffer.reset-all"),
+  BUFFER_RESET_LABEL("buffer.reset-label"),
+  BUFFER_RESET_EMPTY("buffer.reset-empty"),
+  BUFFER_RESET_NO_DATA("buffer.reset-no-data"),
+  BUFFER_RESET_UNKNOWN_LABEL("buffer.reset-unknown-label"),
+
+  // Exempt
+  EXEMPT_INVALID_DURATION("exempt.invalid-duration"),
+  EXEMPT_SUCCESS_PERM("exempt.success-perm"),
+  EXEMPT_SUCCESS_TEMP("exempt.success-temp"),
+  EXEMPT_REMOVE_SUCCESS("exempt.remove-success"),
+  EXEMPT_REMOVE_FAIL("exempt.remove-fail"),
+  EXEMPT_STATUS_PERM_PERMISSION("exempt.status-perm-permission"),
+  EXEMPT_STATUS_PERM_COMMAND("exempt.status-perm-command"),
+  EXEMPT_STATUS_NOT_EXEMPT("exempt.status-not-exempt"),
+  EXEMPT_STATUS_EXPIRED("exempt.status-expired"),
+  EXEMPT_STATUS_TEMP("exempt.status-temp"),
+
+  // Suspicious
+  SUSPICIOUS_ALERTS_ENABLED("suspicious.alerts-enabled"),
+  SUSPICIOUS_ALERTS_DISABLED("suspicious.alerts-disabled"),
+  PUNISH_NO_GROUP("punish.no-group"),
+  SUSPICIOUS_ALERT_TRIGGERED("suspicious.alert-triggered"),
+  SUSPICIOUS_LIST_EMPTY("suspicious.list-empty"),
+  SUSPICIOUS_LIST_HEADER("suspicious.list-header"),
+  SUSPICIOUS_LIST_ENTRY("suspicious.list-entry"),
+  SUSPICIOUS_LIST_ENTRY_HOVER("suspicious.list-entry-hover"),
+  SUSPICIOUS_FLAGGED_EMPTY("suspicious.flagged-empty"),
+  SUSPICIOUS_FLAGGED_HEADER("suspicious.flagged-header"),
+  SUSPICIOUS_FLAGGED_ENTRY("suspicious.flagged-entry"),
+  SUSPICIOUS_TOP_NONE("suspicious.top-none"),
+  SUSPICIOUS_TOP_PLAYER("suspicious.top-player"),
+  SUSPICIOUS_TOP_PLAYER_HOVER("suspicious.top-player-hover"),
+
+  // Cross-server
+  CROSS_SERVER_ALERT_PREFIX("cross-server.alert-prefix"),
+  CROSS_SERVER_SERVER_TAG("cross-server.server-tag"),
+
+  // Stats
+  STATS_INVALID_PERIOD("stats.invalid-period"),
+  STATS_HEADER("stats.header"),
+  STATS_FLAGS("stats.flags"),
+  STATS_FLAGS_HOVER("stats.flags-hover"),
+  STATS_PLAYERS("stats.players"),
+  STATS_PLAYERS_HOVER("stats.players-hover"),
+  STATS_VIOLATORS("stats.violators"),
+  STATS_VIOLATORS_HOVER("stats.violators-hover"),
+  STATS_ONLINE("stats.online"),
+  STATS_MODEL("stats.model"),
+  STATS_MODEL_HOVER("stats.model-hover"),
+  STATS_SUSPICIOUS("stats.suspicious"),
+  STATS_SUSPICIOUS_HOVER("stats.suspicious-hover"),
+
+  // Help
+  HELP_MESSAGE("help"),
+
+  // Internal
+  INTERNAL_ERROR("internal.error"),
+
+  // Time formats
+  TIME_AGO("time.ago"),
+  TIME_DAYS("time.days"),
+  TIME_HOURS("time.hours"),
+  TIME_MINUTES("time.minutes"),
+  TIME_SECONDS("time.seconds"),
+}

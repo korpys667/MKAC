@@ -1,0 +1,244 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:PacketListener.kt$PacketListener$kb != null &amp;&amp; (kb.x != 0f || kb.y != 0f || kb.z != 0f)</ID>
+    <ID>ComplexCondition:TelemetryService.kt$TelemetryService$preWindow != null || postWindow != null || step != null || model != null</ID>
+    <ID>CyclomaticComplexMethod:AimProcessor.kt$AimProcessor$override fun process(rotationUpdate: RotationUpdate)</ID>
+    <ID>CyclomaticComplexMethod:BoundingBoxSize.kt$BoundingBoxSize$private fun getHeightBase(entity: PacketEntity): Float</ID>
+    <ID>CyclomaticComplexMethod:BoundingBoxSize.kt$BoundingBoxSize$private fun getWidthBase(entity: PacketEntity): Float</ID>
+    <ID>CyclomaticComplexMethod:CompensatedEntities.kt$CompensatedEntities$fun updateAttributes( entityId: Int, properties: List&lt;WrapperPlayServerUpdateAttributes.Property>, )</ID>
+    <ID>CyclomaticComplexMethod:PacketListener.kt$PacketListener$override fun onPacketSend(event: PacketSendEvent)</ID>
+    <ID>CyclomaticComplexMethod:PacketListener.kt$PacketListener$private fun checkTeleportQueue( player: MKACPlayer, flying: WrapperPlayClientPlayerFlying, ): Boolean</ID>
+    <ID>CyclomaticComplexMethod:PacketListener.kt$PacketListener$private fun handleMKACClientPackets(event: PacketReceiveEvent, mkacPlayer: MKACPlayer)</ID>
+    <ID>CyclomaticComplexMethod:PacketListener.kt$PacketListener$private fun handleMKACServerPackets(event: PacketSendEvent, mkacPlayer: MKACPlayer)</ID>
+    <ID>CyclomaticComplexMethod:PacketListener.kt$PacketListener$private fun isAgeableMob(type: EntityType): Boolean</ID>
+    <ID>CyclomaticComplexMethod:ReachUtils.kt$ReachUtils$fun calculateIntercept(box: SimpleCollisionBox, origin: Vector3dm, end: Vector3dm): Vector3dm?</ID>
+    <ID>ImplicitDefaultLocale:ProfileCommand.kt$ProfileCommand$String.format("%.2f", aiCheck.buffer)</ID>
+    <ID>LargeClass:PacketListener.kt$PacketListener : PacketListenerAbstract</ID>
+    <ID>LongMethod:AiCheck.kt$AiCheck$private fun onResponse(parsed: AiResult)</ID>
+    <ID>LongMethod:BoundingBoxSize.kt$BoundingBoxSize$private fun getHeightBase(entity: PacketEntity): Float</ID>
+    <ID>LongMethod:BoundingBoxSize.kt$BoundingBoxSize$private fun getWidthBase(entity: PacketEntity): Float</ID>
+    <ID>LongMethod:ConfigManager.kt$ConfigManager$private fun loadValues()</ID>
+    <ID>LongMethod:PacketListener.kt$PacketListener$override fun onPacketSend(event: PacketSendEvent)</ID>
+    <ID>LongMethod:PacketListener.kt$PacketListener$private fun handleMKACClientPackets(event: PacketReceiveEvent, mkacPlayer: MKACPlayer)</ID>
+    <ID>LongMethod:PacketListener.kt$PacketListener$private fun handleMKACServerPackets(event: PacketSendEvent, mkacPlayer: MKACPlayer)</ID>
+    <ID>LongMethod:PlayerDataManagerTest.kt$PlayerDataManagerTest$private fun createFixture(): Fixture</ID>
+    <ID>LongMethod:TickData.kt$TickData$fun capture(player: MKACPlayer)</ID>
+    <ID>LongMethod:TickData.kt$TickData$private fun captureCombatContext(player: MKACPlayer, tracking: TrackingState)</ID>
+    <ID>LongMethod:TickSchemaByteIdentityTest.kt$TickSchemaByteIdentityTest$private fun referenceAppendCsv(out: Appendable, t: TickData)</ID>
+    <ID>LongMethod:TickSchemaByteIdentityTest.kt$TickSchemaByteIdentityTest$private fun samples(): List&lt;TickData></ID>
+    <ID>LongParameterList:AiCheck.kt$AiCheck$( mkacPlayer: MKACPlayer, private val plugin: MKAC, private val aiService: AiService, private val configManager: ConfigManager, private val regionProvider: RegionProvider, private val alertManager: AlertManager, private val damageProcessor: DamageProcessor, private val debugManager: DebugManager, private val scheduler: SchedulerService, )</ID>
+    <ID>LongParameterList:CompensatedEntities.kt$CompensatedEntities$( entityId: Int, uuid: UUID, type: EntityType, x: Double = 0.0, y: Double = 0.0, z: Double = 0.0, )</ID>
+    <ID>LongParameterList:EntityScheduler.kt$EntityScheduler$( entity: Entity, plugin: Plugin, task: Runnable, retired: Runnable?, initialDelayTicks: Long, periodTicks: Long, )</ID>
+    <ID>LongParameterList:PacketListener.kt$PacketListener$( mkacPlayer: MKACPlayer, entityId: Int, deltaX: Double, deltaY: Double, deltaZ: Double, relative: Boolean, )</ID>
+    <ID>LongParameterList:PunishmentManager.kt$PunishmentManager$( group: PunishGroup, vl: Int, verbose: String, command: String, playerName: String, checkName: String, )</ID>
+    <ID>LongParameterList:PunishmentManager.kt$PunishmentManager$( group: PunishGroup, vl: Int, verbose: String, commands: List&lt;String>, playerName: String, checkName: String, )</ID>
+    <ID>LongParameterList:PunishmentManager.kt$PunishmentManager$( private val mkacPlayer: MKACPlayer, private val plugin: MKAC, private val configManager: ConfigManager, databaseManager: DatabaseManager, private val alertManager: AlertManager, private val adventure: BukkitAudiences, private val scheduler: SchedulerService, private val coroutines: MKACCoroutines, )</ID>
+    <ID>LongParameterList:ReachInterpolationData.kt$ReachInterpolationData$( step: Int, stepMinX: Double, stepMaxX: Double, stepMinY: Double, stepMaxY: Double, stepMinZ: Double, stepMaxZ: Double, )</ID>
+    <ID>LongParameterList:RegionScheduler.kt$RegionScheduler$( plugin: Plugin, world: World, chunkX: Int, chunkZ: Int, task: Runnable, delayTicks: Long, )</ID>
+    <ID>LongParameterList:RegionScheduler.kt$RegionScheduler$( plugin: Plugin, world: World, chunkX: Int, chunkZ: Int, task: Runnable, initialDelayTicks: Long, periodTicks: Long, )</ID>
+    <ID>LoopWithTooManyJumpStatements:LatencyUtils.kt$LatencyUtils$while</ID>
+    <ID>LoopWithTooManyJumpStatements:PacketListener.kt$PacketListener$for</ID>
+    <ID>LoopWithTooManyJumpStatements:PacketListener.kt$PacketListener$while</ID>
+    <ID>MagicNumber:AIServer.kt$AIServer.ResponseCode.BAD_REQUEST$400</ID>
+    <ID>MagicNumber:AIServer.kt$AIServer.ResponseCode.NETWORK_ERROR$2</ID>
+    <ID>MagicNumber:AIServer.kt$AIServer.ResponseCode.NOT_FOUND$404</ID>
+    <ID>MagicNumber:AIServer.kt$AIServer.ResponseCode.PARSE_ERROR$3</ID>
+    <ID>MagicNumber:AIServer.kt$AIServer.ResponseCode.PAYLOAD_TOO_LARGE$413</ID>
+    <ID>MagicNumber:AIServer.kt$AIServer.ResponseCode.RATE_LIMITED$429</ID>
+    <ID>MagicNumber:AIServer.kt$AIServer.ResponseCode.RECONFIGURE_REQUIRED$422</ID>
+    <ID>MagicNumber:AIServer.kt$AIServer.ResponseCode.SERVER_ERROR$500</ID>
+    <ID>MagicNumber:AIServer.kt$AIServer.ResponseCode.SERVICE_UNAVAILABLE$503</ID>
+    <ID>MagicNumber:AIServer.kt$AIServer.ResponseCode.SUCCESS$200</ID>
+    <ID>MagicNumber:AIServer.kt$AIServer.ResponseCode.UNAUTHORIZED$403</ID>
+    <ID>MagicNumber:AIServer.kt$AIServer.ResponseCode.UNKNOWN_ERROR$4</ID>
+    <ID>MagicNumber:AIServer.kt$AIServer.ResponseCode.WAITING$5</ID>
+    <ID>MagicNumber:AIServerProvider.kt$AIServerProvider$5</ID>
+    <ID>MagicNumber:AIServerProvider.kt$AIServerProvider$60</ID>
+    <ID>MagicNumber:AiCheck.kt$AiCheck$0.9</ID>
+    <ID>MagicNumber:ApiCooldown.kt$ApiCooldown$1000</ID>
+    <ID>MagicNumber:BlockFriction.kt$BlockFriction$0.05f</ID>
+    <ID>MagicNumber:BlockFriction.kt$BlockFriction$0.25f</ID>
+    <ID>MagicNumber:BlockFriction.kt$BlockFriction$0.75f</ID>
+    <ID>MagicNumber:BlockFriction.kt$BlockFriction$0.8f</ID>
+    <ID>MagicNumber:BlockFriction.kt$BlockFriction$0.989f</ID>
+    <ID>MagicNumber:BlockFriction.kt$BlockFriction$0.98f</ID>
+    <ID>MagicNumber:BlockFriction.kt$BlockFriction$0.9f</ID>
+    <ID>MagicNumber:BlockFriction.kt$BlockFriction$1.5f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$0.2f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$0.3f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$0.42f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$0.4f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$0.52f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$0.55f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$0.5625f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$0.5f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$0.6f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$0.75f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$0.7f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$0.85f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$0.8f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$0.9f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$1.25f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$1.375f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$1.3964844f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$1.3f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$1.4f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$1.5f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$1.6f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$1.77f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$1.7f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$1.875f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$1.8f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$1.95f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$1.975f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$1.9975f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$1.9f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$16.0f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$2.2f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$2.4f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$2.7f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$2.9f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$3.5f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$4.0f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$4.5f</ID>
+    <ID>MagicNumber:BoundingBoxSize.kt$BoundingBoxSize$8.0f</ID>
+    <ID>MagicNumber:ClientBrand.kt$ClientBrand$64</ID>
+    <ID>MagicNumber:CompensatedWorld.kt$CompensatedWorld$4</ID>
+    <ID>MagicNumber:CompensatedWorld.kt$CompensatedWorld.Companion$0xFFFFFFFFL</ID>
+    <ID>MagicNumber:CompensatedWorld.kt$CompensatedWorld.Companion$32</ID>
+    <ID>MagicNumber:ConfigManager.kt$ConfigManager$0.9</ID>
+    <ID>MagicNumber:ConfigManager.kt$ConfigManager$100.0</ID>
+    <ID>MagicNumber:ConfigManager.kt$ConfigManager$25.0</ID>
+    <ID>MagicNumber:ConfigManager.kt$ConfigManager$50.0</ID>
+    <ID>MagicNumber:FoliaRegionScheduler.kt$FoliaRegionScheduler$4</ID>
+    <ID>MagicNumber:HistoryCommand.kt$HistoryCommand$10</ID>
+    <ID>MagicNumber:LogsCommand.kt$LogsCommand$10</ID>
+    <ID>MagicNumber:PacketListener.kt$PacketListener$1.0E-7</ID>
+    <ID>MagicNumber:PlatformScheduler.kt$PlatformScheduler.Companion$50</ID>
+    <ID>MagicNumber:PlatformScheduler.kt$PlatformScheduler.Companion$50L</ID>
+    <ID>MagicNumber:ProfileCommand.kt$ProfileCommand$50</ID>
+    <ID>MagicNumber:PunishmentManager.kt$PunishmentManager$20.0</ID>
+    <ID>MagicNumber:PunishmentManager.kt$PunishmentManager$50.0</ID>
+    <ID>MagicNumber:ReachInterpolationData.kt$ReachInterpolationData$0.015625</ID>
+    <ID>MagicNumber:ReachInterpolationData.kt$ReachInterpolationData$0.03125</ID>
+    <ID>MagicNumber:ReachInterpolationData.kt$ReachInterpolationData$10</ID>
+    <ID>MagicNumber:ReachInterpolationData.kt$ReachInterpolationData$3</ID>
+    <ID>MagicNumber:ReachInterpolationData.kt$ReachInterpolationData$5</ID>
+    <ID>MagicNumber:ReachUtils.kt$ReachUtils$0.001</ID>
+    <ID>MagicNumber:ReachUtils.kt$ReachUtils$0.4</ID>
+    <ID>MagicNumber:ReachUtils.kt$ReachUtils$1.27</ID>
+    <ID>MagicNumber:ReachUtils.kt$ReachUtils$1.62</ID>
+    <ID>MagicNumber:ReachUtils.kt$ReachUtils$1e-6</ID>
+    <ID>MagicNumber:ReachUtils.kt$ReachUtils$32</ID>
+    <ID>MagicNumber:MKACMath.kt$MKACMath$0.15</ID>
+    <ID>MagicNumber:MKACMath.kt$MKACMath$1e-3</ID>
+    <ID>MagicNumber:MKACMath.kt$MKACMath$3</ID>
+    <ID>MagicNumber:MKACMath.kt$MKACMath$8</ID>
+    <ID>MagicNumber:MKACPlayer.kt$MKACPlayer$0.0002</ID>
+    <ID>MagicNumber:MKACPlayer.kt$MKACPlayer$0.03</ID>
+    <ID>MagicNumber:SqlViolationDatabase.kt$SqlViolationDatabase.MonitorSettingsTable$16</ID>
+    <ID>MagicNumber:SqlViolationDatabase.kt$SqlViolationDatabase.MonitorSettingsTable$36</ID>
+    <ID>MagicNumber:SqlViolationDatabase.kt$SqlViolationDatabase.MonitorSettingsTable$64</ID>
+    <ID>MagicNumber:SqlViolationDatabase.kt$SqlViolationDatabase.PlayerLogins$36</ID>
+    <ID>MagicNumber:SqlViolationDatabase.kt$SqlViolationDatabase.Punishments$255</ID>
+    <ID>MagicNumber:SqlViolationDatabase.kt$SqlViolationDatabase.Punishments$36</ID>
+    <ID>MagicNumber:SqlViolationDatabase.kt$SqlViolationDatabase.Violations$255</ID>
+    <ID>MagicNumber:SqlViolationDatabase.kt$SqlViolationDatabase.Violations$36</ID>
+    <ID>MagicNumber:SqlViolationDatabase.kt$SqlViolationDatabase.Violations$64</ID>
+    <ID>MagicNumber:TickData.kt$TickData$0.08f</ID>
+    <ID>MagicNumber:TickData.kt$TickData$0.1f</ID>
+    <ID>MagicNumber:TickData.kt$TickData$0.42f</ID>
+    <ID>MagicNumber:TickData.kt$TickData$0.5</ID>
+    <ID>MagicNumber:TickData.kt$TickData$0.5f</ID>
+    <ID>MagicNumber:TickData.kt$TickData$0.6f</ID>
+    <ID>MagicNumber:TickData.kt$TickData$0.8f</ID>
+    <ID>MagicNumber:TickData.kt$TickData$20</ID>
+    <ID>MagicNumber:TickData.kt$TickData$255</ID>
+    <ID>MagicNumber:TickData.kt$TickData$3.0f</ID>
+    <ID>MagicNumber:TickData.kt$TickData$4.0f</ID>
+    <ID>MagicNumber:TickSchema.kt$TickSchema$0.5</ID>
+    <ID>MagicNumber:TickSchema.kt$TickSchema$10</ID>
+    <ID>MagicNumber:TickSchema.kt$TickSchema$4</ID>
+    <ID>MagicNumber:TickSchema.kt$TickSchema$5</ID>
+    <ID>MagicNumber:TickSchema.kt$TickSchema$6</ID>
+    <ID>MagicNumber:TickSchema.kt$TickSchema$7</ID>
+    <ID>MagicNumber:TickSchema.kt$TickSchema$8</ID>
+    <ID>MagicNumber:TickSchema.kt$TickSchema$9</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$0.08f</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$0.1f</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$0.42f</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$0.5f</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$0.6f</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$1_000_000.0</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$20</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$20.0f</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$255</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$3.0f</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$4</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$4.0f</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$5</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$6</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$7</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$8</ID>
+    <ID>MagicNumber:TrackingState.kt$TrackingState$9</ID>
+    <ID>MagicNumber:TransactionTracker.kt$TransactionTracker$0x7FFF</ID>
+    <ID>MayBeConst:Sender.kt$Sender.Companion$@JvmField val CONSOLE_NAME: String = "Console"</ID>
+    <ID>NestedBlockDepth:ReachUtils.kt$ReachUtils$fun getMinAngleToBox(player: MKACPlayer, box: SimpleCollisionBox): Double</ID>
+    <ID>PrintStackTrace:CommandManager.kt$CommandManager$e</ID>
+    <ID>PrintStackTrace:LatencyUtils.kt$LatencyUtils$ex</ID>
+    <ID>ReturnCount:AiApiImpl.kt$AiApiImpl$override fun getSnapshot(playerId: UUID): Optional&lt;AiSnapshot></ID>
+    <ID>ReturnCount:AiCheck.kt$AiCheck$private fun onError(error: Throwable): Void?</ID>
+    <ID>ReturnCount:AiCheck.kt$AiCheck$private fun onResponse(parsed: AiResult)</ID>
+    <ID>ReturnCount:BlockFriction.kt$BlockFriction$fun isWater(state: WrappedBlockState?): Boolean</ID>
+    <ID>ReturnCount:CheckApiImpl.kt$CheckApiImpl$override fun getCheck(playerId: UUID, checkName: String): Optional&lt;CheckInfo></ID>
+    <ID>ReturnCount:CompensatedWorld.kt$CompensatedWorld$fun getBlock(x: Int, y: Int, z: Int): WrappedBlockState?</ID>
+    <ID>ReturnCount:CompensatedWorld.kt$CompensatedWorld$fun setBlock(x: Int, y: Int, z: Int, state: WrappedBlockState?)</ID>
+    <ID>ReturnCount:TickBuffer.kt$TickBuffer$fun extractWindow( preWindow: Int, postWindow: Int, ticksSinceAttack: Int, attackIdx: Int = attackBufferIndex, windowStartKind: Short = TickData.START_MELEE_PLAYER, ): List&lt;TickData>?</ID>
+    <ID>ReturnCount:ExemptManager.kt$ExemptManager$fun isExempt(player: Player?): Boolean</ID>
+    <ID>ReturnCount:MonitorApiImpl.kt$MonitorApiImpl$override fun getSnapshot(playerId: UUID): Optional&lt;MonitorSnapshot></ID>
+    <ID>ReturnCount:PacketListener.kt$PacketListener$override fun onPacketReceive(event: PacketReceiveEvent)</ID>
+    <ID>ReturnCount:PacketListener.kt$PacketListener$private fun checkRotationQueue( player: MKACPlayer, flying: WrapperPlayClientPlayerFlying, ): Boolean</ID>
+    <ID>ReturnCount:PacketListener.kt$PacketListener$private fun checkTeleportQueue( player: MKACPlayer, flying: WrapperPlayClientPlayerFlying, ): Boolean</ID>
+    <ID>ReturnCount:PacketListener.kt$PacketListener$private fun handleTransaction(event: PacketReceiveEvent, mkacPlayer: MKACPlayer): Boolean</ID>
+    <ID>ReturnCount:PunishmentManager.kt$PunishmentManager$private suspend fun executeCommand( group: PunishGroup, vl: Int, verbose: String, command: String, playerName: String, checkName: String, )</ID>
+    <ID>ReturnCount:ReachUtils.kt$ReachUtils$fun aimError(player: MKACPlayer, box: SimpleCollisionBox): Double</ID>
+    <ID>ReturnCount:ReachUtils.kt$ReachUtils$fun minDistanceRayToBox( origin: Vector3dm, dir: Vector3dm, maxDist: Double, box: SimpleCollisionBox, ): Double</ID>
+    <ID>ReturnCount:SchedulerService.kt$SchedulerService$fun runSync(player: Player?, task: Runnable): TaskHandle</ID>
+    <ID>ReturnCount:TickData.kt$TickData$private fun computeIsCritical(player: MKACPlayer, tracking: TrackingState): Boolean</ID>
+    <ID>ReturnCount:TickData.kt$TickData$private fun computeRaytraceHitPoint( player: MKACPlayer, targetBox: SimpleCollisionBox, ): Vector3dm?</ID>
+    <ID>ReturnCount:TimeUtil.kt$TimeUtil$@JvmStatic fun formatTimeAgo(timestamp: Instant, lm: LocaleManager): String</ID>
+    <ID>ReturnCount:TimeUtil.kt$TimeUtil$@JvmStatic fun parseDuration(durationStr: String?): Long</ID>
+    <ID>SpreadOperator:ConfigView.kt$ConfigView$(*path.split('.').toTypedArray())</ID>
+    <ID>SwallowedException:ConfigManager.kt$ConfigManager$e: PatternSyntaxException</ID>
+    <ID>SwallowedException:ConfigView.kt$ConfigView$ex: SerializationException</ID>
+    <ID>SwallowedException:FoliaDetector.kt$FoliaDetector$ex: ClassNotFoundException</ID>
+    <ID>SwallowedException:MonitorMode.kt$MonitorMode.Companion$e: IllegalArgumentException</ID>
+    <ID>SwallowedException:MonitorNameMode.kt$MonitorNameMode.Companion$ex: IllegalArgumentException</ID>
+    <ID>SwallowedException:MonitorTheme.kt$MonitorTheme.Companion$e: IllegalArgumentException</ID>
+    <ID>SwallowedException:TimeUtil.kt$TimeUtil$ex: Exception</ID>
+    <ID>TooGenericExceptionCaught:AiCheck.kt$AiCheck$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:CommandManager.kt$CommandManager$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ConfigManager.kt$ConfigManager$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:DefaultAiService.kt$DefaultAiService$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:LatencyUtils.kt$LatencyUtils$ex: Exception</ID>
+    <ID>TooGenericExceptionCaught:PunishmentApiImpl.kt$PunishmentApiImpl$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PunishmentManager.kt$PunishmentManager$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:TimeUtil.kt$TimeUtil$ex: Exception</ID>
+    <ID>TooManyFunctions:AIServerProvider.kt$AIServerProvider : Supplier</ID>
+    <ID>TooManyFunctions:BatchingAiTransport.kt$BatchingAiTransport : AiTransport</ID>
+    <ID>TooManyFunctions:ConfigManager.kt$ConfigManager</ID>
+    <ID>TooManyFunctions:MessageUtil.kt$MessageUtil</ID>
+    <ID>TooManyFunctions:PacketListener.kt$PacketListener : PacketListenerAbstract</ID>
+    <ID>TooManyFunctions:PunishmentManager.kt$PunishmentManager</ID>
+    <ID>TooManyFunctions:ReachUtils.kt$ReachUtils</ID>
+    <ID>TooManyFunctions:MKACPlayer.kt$MKACPlayer</ID>
+    <ID>TooManyFunctions:SqlViolationDatabase.kt$SqlViolationDatabase : ViolationDatabase</ID>
+    <ID>TooManyFunctions:TickSchema.kt$TickSchema</ID>
+    <ID>TooManyFunctions:ViolationDatabase.kt$ViolationDatabase</ID>
+    <ID>UnusedPrivateProperty:MKACPlayer.kt$MKACPlayer$aiServerProvider: AIServerProvider</ID>
+    <ID>UnusedPrivateProperty:MKACPlayer.kt$MKACPlayer$alertManager: AlertManager</ID>
+    <ID>WildcardImport:SqlViolationDatabase.kt$import org.jetbrains.exposed.v1.core.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

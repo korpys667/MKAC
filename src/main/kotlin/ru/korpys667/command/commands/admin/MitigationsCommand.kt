@@ -1,0 +1,369 @@
+/*
+ * This file is part of MKAC - https://github.com/korpys667/MKAC
+ * Copyright (C) 2026 korpys667
+ *
+ * MKAC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MKAC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package ru.korpys667.command.commands.admin
+
+import java.time.Instant
+import java.util.Locale
+import net.kyori.adventure.text.Component
+import org.bukkit.OfflinePlayer
+import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
+import org.incendo.cloud.CommandManager
+import org.incendo.cloud.bukkit.parser.OfflinePlayerParser
+import org.incendo.cloud.bukkit.parser.PlayerParser
+import org.incendo.cloud.context.CommandContext
+import org.incendo.cloud.kotlin.extension.buildAndRegister
+import ru.korpys667.alert.AlertManager
+import ru.korpys667.alert.AlertType
+import ru.korpys667.command.MKACCommand
+import ru.korpys667.config.ConfigManager
+import ru.korpys667.database.DatabaseManager
+import ru.korpys667.database.MitigationLogEntry
+import ru.korpys667.mitigation.MitigationLogStore
+import ru.korpys667.mitigation.MitigationRuntime
+import ru.korpys667.mitigation.MitigationSettings
+import ru.korpys667.mitigation.MitigationSkip
+import ru.korpys667.mitigation.MitigationState
+import ru.korpys667.mitigation.ScoreMath
+import ru.korpys667.mitigation.SkipReason
+import ru.korpys667.player.MKACPlayer
+import ru.korpys667.player.PlayerDataManager
+import ru.korpys667.scheduler.SchedulerService
+import ru.korpys667.sender.Sender
+import ru.korpys667.utils.Message
+import ru.korpys667.utils.MessageUtil
+import ru.korpys667.utils.TimeUtil
+
+private const val MAX_ROWS = 20
+private const val PERCENT = 100
+private const val LOG_LIMIT = 10
+
+@Suppress("LongParameterList", "TooManyFunctions")
+internal class MitigationsCommand(
+  private val playerDataManager: PlayerDataManager,
+  private val configManager: ConfigManager,
+  private val skip: MitigationSkip,
+  private val runtime: MitigationRuntime,
+  private val localeManager: ru.korpys667.config.LocaleManager,
+  private val alertManager: AlertManager,
+  private val databaseManager: DatabaseManager,
+  private val scheduler: SchedulerService,
+  private val logStore: MitigationLogStore,
+) : MKACCommand {
+
+  override fun register(manager: CommandManager<Sender>) {
+    manager.buildAndRegister("mkac") {
+      literal("mitigations").permission("mkac.mitigations").handler(this@MitigationsCommand::list)
+    }
+    manager.buildAndRegister("mkac") {
+      literal("mitigations")
+        .permission("mkac.mitigations")
+        .required("target", PlayerParser.playerParser())
+        .handler(this@MitigationsCommand::explain)
+    }
+    manager.buildAndRegister("mkac") {
+      literal("mitigations")
+        .literal("alerts")
+        .permission("mkac.mitigations.alerts")
+        .handler(this@MitigationsCommand::alerts)
+    }
+    manager.buildAndRegister("mkac") {
+      literal("mitigations")
+        .literal("logs")
+        .permission("mkac.mitigations")
+        .handler(this@MitigationsCommand::logs)
+    }
+    manager.buildAndRegister("mkac") {
+      literal("mitigations")
+        .literal("history")
+        .permission("mkac.mitigations")
+        .required("target", OfflinePlayerParser.offlinePlayerParser())
+        .handler(this@MitigationsCommand::history)
+    }
+    manager.buildAndRegister("mkac") {
+      literal("mitigations")
+        .literal("clear")
+        .permission("mkac.mitigations.clear")
+        .required("target", PlayerParser.playerParser())
+        .handler(this@MitigationsCommand::clear)
+    }
+  }
+
+  private fun list(context: CommandContext<Sender>) {
+    val sender: CommandSender = context.sender().nativeSender
+    val settings = configManager.mitigationSettings
+
+    if (!settings.enabled) {
+      MessageUtil.sendMessage(sender, Message.MITIGATIONS_DISABLED)
+      return
+    }
+
+    val rows =
+      playerDataManager
+        .getPlayers()
+        .filter { it.mitigation.matched != null }
+        .sortedByDescending { it.mitigation.score }
+
+    if (rows.isEmpty()) {
+      MessageUtil.sendMessage(sender, Message.MITIGATIONS_NOBODY)
+      return
+    }
+
+    MessageUtil.sendMessage(sender, Message.MITIGATIONS_HEADER, "count", rows.size.toString())
+    rows.take(MAX_ROWS).forEach { mkacPlayer ->
+      val state = mkacPlayer.mitigation
+      MessageUtil.sendMessage(
+        sender,
+        Message.MITIGATIONS_ROW,
+        "player",
+        mkacPlayer.player.name,
+        "tier",
+        state.tierName,
+        "score",
+        format(state.score),
+        "active",
+        state.applied?.id ?: "waiting",
+        "for",
+        TimeUtil.formatDuration(
+          System.currentTimeMillis() - state.matchedSinceMillis,
+          localeManager,
+        ),
+      )
+    }
+  }
+
+  private fun explain(context: CommandContext<Sender>) {
+    val sender: CommandSender = context.sender().nativeSender
+    val target: Player = context["target"]
+    val mkacPlayer = playerDataManager.getPlayer(target)
+
+    if (mkacPlayer == null) {
+      MessageUtil.sendMessage(sender, Message.MITIGATIONS_NO_DATA)
+      return
+    }
+
+    val state = mkacPlayer.mitigation
+    val settings = configManager.mitigationSettings
+    val reason = skip.skipReason(mkacPlayer)
+
+    MessageUtil.sendMessageList(
+      sender,
+      Message.MITIGATIONS_DETAIL,
+      "player",
+      target.name,
+      "tier",
+      state.tierName,
+      "applied",
+      state.applied?.id ?: "-",
+      "waiting",
+      pendingText(state),
+      "score",
+      format(state.score),
+      "windows",
+      "${state.answers} / ${settings.score.minAnswers}",
+      "sessions",
+      state.history.sessions.toString(),
+      "days",
+      state.history.days.toString(),
+      "channels",
+      channels(state.activeEffects),
+      "skipped",
+      skipText(reason),
+      "histogram",
+      histogram(mkacPlayer),
+    )
+  }
+
+  private fun history(context: CommandContext<Sender>) {
+    val sender = context.sender()
+    val target: OfflinePlayer = context["target"]
+
+    if (!logStore.enabled()) {
+      MessageUtil.sendMessage(sender.nativeSender, Message.MITIGATIONS_LOG_OFF)
+      return
+    }
+    if (!target.hasPlayedBefore() && !target.isOnline) {
+      MessageUtil.sendMessage(sender.nativeSender, Message.PLAYER_NOT_FOUND)
+      return
+    }
+    warnIfStorageDegraded(sender)
+
+    val name = target.name ?: target.uniqueId.toString()
+    val uuid = target.uniqueId
+    scheduler.runAsync {
+      val entries =
+        databaseManager.database.getMitigationLog(uuid, LOG_LIMIT).map { entry ->
+          entryLine(Message.MITIGATIONS_HISTORY_ENTRY, entry)
+        }
+      scheduler.runSync {
+        if (entries.isEmpty()) {
+          MessageUtil.sendMessage(
+            sender.nativeSender,
+            Message.MITIGATIONS_HISTORY_EMPTY,
+            "player",
+            name,
+          )
+          return@runSync
+        }
+        sender.sendMessage(
+          MessageUtil.getMessage(Message.MITIGATIONS_HISTORY_HEADER, "player", name)
+        )
+        entries.forEach { sender.sendMessage(it) }
+      }
+    }
+  }
+
+  private fun logs(context: CommandContext<Sender>) {
+    val sender = context.sender()
+
+    if (!logStore.enabled()) {
+      MessageUtil.sendMessage(sender.nativeSender, Message.MITIGATIONS_LOG_OFF)
+      return
+    }
+    warnIfStorageDegraded(sender)
+
+    scheduler.runAsync {
+      val entries =
+        databaseManager.database.getMitigationLog(LOG_LIMIT).map { entry ->
+          entryLine(Message.MITIGATIONS_LOGS_ENTRY, entry)
+        }
+      scheduler.runSync {
+        if (entries.isEmpty()) {
+          MessageUtil.sendMessage(sender.nativeSender, Message.MITIGATIONS_LOGS_EMPTY)
+          return@runSync
+        }
+        sender.sendMessage(MessageUtil.getMessage(Message.MITIGATIONS_LOGS_HEADER))
+        entries.forEach { sender.sendMessage(it) }
+      }
+    }
+  }
+
+  private fun warnIfStorageDegraded(sender: Sender) {
+    if (!databaseManager.isAvailable) {
+      MessageUtil.sendMessage(sender.nativeSender, Message.STORAGE_DEGRADED)
+    }
+  }
+
+  private fun entryLine(key: Message, entry: MitigationLogEntry): Component =
+    MessageUtil.getMessage(
+      key,
+      "server",
+      entry.serverName,
+      "player",
+      entry.playerName,
+      "rule",
+      entry.rule,
+      "tier",
+      entry.tier,
+      "score",
+      format(entry.score),
+      "for",
+      TimeUtil.formatDuration(entry.endedAt - entry.startedAt, localeManager),
+      "ago",
+      TimeUtil.formatTimeAgo(Instant.ofEpochMilli(entry.endedAt), localeManager),
+    )
+
+  private fun channels(effects: Map<String, Double>): String {
+    if (effects.isEmpty()) return "-"
+    return effects.entries.joinToString("<newline>   ") { (channel, value) ->
+      val hint = channelHint(channel)
+      val text = "${MessageUtil.escape(channel)} ${channelValue(channel, value)}"
+      if (hint.isBlank()) text else "<hover:show_text:'${quoted(hint)}'>$text</hover>"
+    }
+  }
+
+  private fun quoted(value: String): String = value.replace("\\", "\\\\").replace("'", "\\'")
+
+  private fun channelHint(channel: String): String =
+    when (channel) {
+      MitigationSettings.MELEE -> localeManager.getRawMessage(Message.MITIGATIONS_HINT_MELEE)
+      MitigationSettings.PROJECTILE ->
+        localeManager.getRawMessage(Message.MITIGATIONS_HINT_PROJECTILE)
+      MitigationSettings.CRYSTAL -> localeManager.getRawMessage(Message.MITIGATIONS_HINT_CRYSTAL)
+      MitigationSettings.INCOMING -> localeManager.getRawMessage(Message.MITIGATIONS_HINT_INCOMING)
+      MitigationSettings.HEALING -> localeManager.getRawMessage(Message.MITIGATIONS_HINT_HEALING)
+      MitigationSettings.CANCEL -> localeManager.getRawMessage(Message.MITIGATIONS_HINT_CANCEL)
+      else -> ""
+    }
+
+  private fun channelValue(channel: String, value: Double): String =
+    if (channel == MitigationSettings.CANCEL) {
+      String.format(Locale.US, "%.0f%%", value * PERCENT)
+    } else {
+      String.format(Locale.US, "%+.0f%%", (value - 1.0) * PERCENT)
+    }
+
+  private fun alerts(context: CommandContext<Sender>) {
+    val player = context.sender().player ?: return
+    alertManager.toggle(player, AlertType.MITIGATION, false)
+  }
+
+  private fun pendingText(state: MitigationState): String {
+    val left = state.onsetAtMillis - System.currentTimeMillis()
+    if (state.matched == null || state.matched === state.applied || left <= 0L) return ""
+    return localeManager
+      .getRawMessage(Message.MITIGATIONS_PENDING)
+      .replace("<rule>", MessageUtil.escape(state.matched?.id.orEmpty()))
+      .replace("<time>", TimeUtil.formatDuration(left, localeManager))
+  }
+
+  private fun skipText(reason: SkipReason?): String =
+    localeManager.getRawMessage(
+      when (reason) {
+        null -> Message.MITIGATIONS_SKIP_NONE
+        SkipReason.TURNED_OFF -> Message.MITIGATIONS_SKIP_TURNED_OFF
+        SkipReason.EXEMPT -> Message.MITIGATIONS_SKIP_EXEMPT
+        SkipReason.CHECKS_DISABLED -> Message.MITIGATIONS_SKIP_CHECKS_DISABLED
+        SkipReason.NO_MITIGATE -> Message.MITIGATIONS_SKIP_NO_MITIGATE
+        SkipReason.BEDROCK -> Message.MITIGATIONS_SKIP_BEDROCK
+        SkipReason.DISABLED_REGION -> Message.MITIGATIONS_SKIP_DISABLED_REGION
+        SkipReason.TOO_FEW_ANSWERS -> Message.MITIGATIONS_SKIP_TOO_FEW_ANSWERS
+      }
+    )
+
+  private fun clear(context: CommandContext<Sender>) {
+    val sender: CommandSender = context.sender().nativeSender
+    val target: Player = context["target"]
+    val mkacPlayer = playerDataManager.getPlayer(target)
+
+    if (mkacPlayer == null) {
+      MessageUtil.sendMessage(sender, Message.MITIGATIONS_NO_DATA)
+      return
+    }
+
+    mkacPlayer.mitigation.clearScore(System.currentTimeMillis())
+    runtime.clearFor(mkacPlayer)
+    MessageUtil.sendMessage(sender, Message.MITIGATIONS_CLEARED, "player", target.name)
+  }
+
+  private fun histogram(mkacPlayer: MKACPlayer): String {
+    val shape = mkacPlayer.mitigation.shape()
+    if (shape.total == 0L) return "-"
+    return localeManager
+      .getRawMessage(Message.MITIGATIONS_HISTOGRAM)
+      .replace("<low-mark>", ScoreMath.LOW_TAIL_UNTIL.toString())
+      .replace("<high-mark>", ScoreMath.SPIKE_FROM.toString())
+      .replace("<low>", share(shape.low, shape.total))
+      .replace("<mid>", share(shape.middle, shape.total))
+      .replace("<high>", share(shape.high, shape.total))
+  }
+
+  private fun share(part: Long, total: Long): String = "${part * PERCENT / total}%"
+
+  private fun format(value: Double): String = String.format(Locale.US, "%.1f", value)
+}

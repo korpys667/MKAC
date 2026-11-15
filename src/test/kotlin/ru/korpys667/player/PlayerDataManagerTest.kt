@@ -1,0 +1,196 @@
+/*
+ * This file is part of MKAC - https://github.com/korpys667/MKAC
+ * Copyright (C) 2026 korpys667
+ *
+ * MKAC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MKAC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package ru.korpys667.player
+
+import com.github.retrooper.packetevents.protocol.player.User
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.runs
+import io.mockk.verify
+import java.util.UUID
+import org.bukkit.Server
+import org.bukkit.entity.Player
+import org.bukkit.plugin.PluginManager
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertSame
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
+import ru.korpys667.MKAC
+import ru.korpys667.alert.AlertManager
+import ru.korpys667.api.event.MKACEventBus
+import ru.korpys667.checks.CheckManager
+import ru.korpys667.checks.impl.ai.AiSnapshotStore
+import ru.korpys667.checks.impl.ai.PersistentBufferService
+import ru.korpys667.config.ConfigManager
+import ru.korpys667.data.CollectManager
+import ru.korpys667.database.DatabaseManager
+import ru.korpys667.mitigation.MitigationLogStore
+import ru.korpys667.mitigation.MitigationScoreStore
+import ru.korpys667.punishment.PunishmentManager
+import ru.korpys667.scheduler.SchedulerService
+import ru.korpys667.server.AIServerProvider
+
+class PlayerDataManagerTest {
+
+  @Test
+  fun `getPlayer keeps tracked player after mkac disable is granted mid-session`() {
+    val fixture = createFixture()
+    val user = mockk<User>(relaxed = true)
+    val trackedPlayer = mockk<MKACPlayer>(relaxed = true)
+    every { trackedPlayer.player } returns fixture.player
+    every { trackedPlayer.isAttached } returns true
+    every { trackedPlayer.user } returns user
+    every { trackedPlayer.uuid } returns fixture.player.uniqueId
+
+    trackedPlayers(fixture.manager)[user] = trackedPlayer
+
+    assertNotNull(fixture.manager.getPlayer(fixture.player))
+
+    fixture.disablePermission = true
+
+    assertSame(trackedPlayer, fixture.manager.getPlayer(fixture.player))
+    assertSame(trackedPlayer, fixture.manager.getPlayer(fixture.player.uniqueId))
+    assertTrue(fixture.manager.getPlayers().contains(trackedPlayer))
+    verify(exactly = 0) { fixture.alertManager.handlePlayerQuit(any()) }
+  }
+
+  @Test
+  fun `disconnect writes the mitigation to the log`() {
+    val fixture = createFixture()
+    val tracked = mockk<MKACPlayer>(relaxed = true)
+    every { tracked.player } returns fixture.player
+    every { tracked.user } returns fixture.user
+    every { tracked.uuid } returns fixture.player.uniqueId
+    every { tracked.isAttached } returns true
+    every { fixture.user.uuid } returns fixture.player.uniqueId
+    trackedPlayers(fixture.manager)[fixture.user] = tracked
+
+    fixture.manager.handleUserDisconnect(fixture.user)
+
+    verify(exactly = 1) { fixture.mitigationLogStore.saveOnQuit(tracked) }
+  }
+
+  private fun createFixture(): Fixture {
+    val plugin = mockk<MKAC>(relaxed = true)
+    val server = mockk<Server>(relaxed = true)
+    val pluginManager = mockk<PluginManager>(relaxed = true)
+    every { plugin.server } returns server
+    every { server.pluginManager } returns pluginManager
+    every { pluginManager.registerEvents(any(), plugin) } just runs
+
+    val scheduler = mockk<SchedulerService>(relaxed = true)
+    every { scheduler.runSync(any<Player>(), any<Runnable>()) } answers
+      {
+        secondArg<Runnable>().run()
+        mockk(relaxed = true)
+      }
+    every { scheduler.runAsync(any<Runnable>()) } answers
+      {
+        firstArg<Runnable>().run()
+        mockk(relaxed = true)
+      }
+
+    val configManager = mockk<ConfigManager>(relaxed = true)
+    every { configManager.aiPreWindow } returns 32
+    every { configManager.aiPostWindow } returns 32
+    every { configManager.collectPreWindow } returns 128
+    every { configManager.collectPostWindow } returns 128
+    every { configManager.cancelDuplicatePacket } returns true
+    every { configManager.forceCancelDuplicatePacket } returns false
+    every { configManager.ignoreDuplicatePacketRotation } returns true
+
+    val mitigationLogStore = mockk<MitigationLogStore>(relaxed = true)
+    val alertManager = mockk<AlertManager>(relaxed = true)
+    every { alertManager.handlePlayerQuit(any()) } just runs
+
+    val collectManager = mockk<CollectManager>(relaxed = true)
+    every { collectManager.getSession(any()) } returns null
+    every { collectManager.stopCollecting(any()) } returns false
+
+    val checkManagerFactory = mockk<CheckManager.Factory>()
+    every { checkManagerFactory.create(any()) } returns mockk(relaxed = true)
+
+    val punishmentManagerFactory = mockk<PunishmentManager.Factory>()
+    every { punishmentManagerFactory.create(any()) } returns mockk(relaxed = true)
+
+    var disablePermission = false
+    val player = mockk<Player>(relaxed = true)
+    every { player.uniqueId } returns UUID.fromString("123e4567-e89b-12d3-a456-426614174000")
+    every { player.isOnline } returns true
+    every { player.hasPermission(any<String>()) } answers
+      {
+        firstArg<String>() == ExemptManager.DISABLE_PERMISSION && disablePermission
+      }
+
+    val manager =
+      PlayerDataManager(
+        plugin = plugin,
+        alertManager = alertManager,
+        collectManager = collectManager,
+        configManager = configManager,
+        aiServerProvider = mockk<AIServerProvider>(relaxed = true),
+        exemptManager = ExemptManager(),
+        scheduler = scheduler,
+        checkManagerFactory = checkManagerFactory,
+        punishmentManagerFactory = punishmentManagerFactory,
+        eventBus = mockk<MKACEventBus>(relaxed = true),
+        databaseManager = mockk<DatabaseManager>(relaxed = true),
+        persistentBufferService = mockk<PersistentBufferService>(relaxed = true),
+        mitigationScoreStore = mockk<MitigationScoreStore>(relaxed = true),
+        mitigationLogStore = mitigationLogStore,
+        aiSnapshotStore = mockk<AiSnapshotStore>(relaxed = true),
+      )
+
+    return Fixture(
+      manager = manager,
+      user = mockk<User>(relaxed = true),
+      player = player,
+      alertManager = alertManager,
+      mitigationLogStore = mitigationLogStore,
+      checkManagerFactory = checkManagerFactory,
+      disablePermissionAccessor = { disablePermission },
+      disablePermissionMutator = { disablePermission = it },
+    )
+  }
+
+  private data class Fixture(
+    val manager: PlayerDataManager,
+    val user: User,
+    val player: Player,
+    val alertManager: AlertManager,
+    val mitigationLogStore: MitigationLogStore,
+    val checkManagerFactory: CheckManager.Factory,
+    private val disablePermissionAccessor: () -> Boolean,
+    private val disablePermissionMutator: (Boolean) -> Unit,
+  ) {
+    var disablePermission: Boolean
+      get() = disablePermissionAccessor()
+      set(value) = disablePermissionMutator(value)
+  }
+
+  private companion object {
+    val playersField =
+      PlayerDataManager::class.java.getDeclaredField("players").apply { isAccessible = true }
+
+    @Suppress("UNCHECKED_CAST")
+    fun trackedPlayers(manager: PlayerDataManager): MutableMap<User, MKACPlayer> {
+      return playersField.get(manager) as MutableMap<User, MKACPlayer>
+    }
+  }
+}

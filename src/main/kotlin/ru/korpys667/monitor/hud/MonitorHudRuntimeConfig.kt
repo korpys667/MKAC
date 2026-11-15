@@ -1,0 +1,237 @@
+/*
+ * This file is part of MKAC - https://github.com/korpys667/MKAC
+ * Copyright (C) 2026 korpys667
+ *
+ * MKAC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MKAC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package ru.korpys667.monitor.hud
+
+import java.util.Locale
+import java.util.logging.Logger
+import ru.korpys667.config.ConfigManager
+import ru.korpys667.config.ConfigView
+import ru.korpys667.monitor.core.MonitorFormatConfig
+import ru.korpys667.monitor.core.MonitorMode
+import ru.korpys667.monitor.core.MonitorOutputKind
+import ru.korpys667.monitor.core.MonitorThemeTable
+import ru.korpys667.monitor.core.MonitorToken
+import ru.korpys667.monitor.core.ticksToCycles
+import ru.korpys667.monitor.view.viewDisplaySlot
+
+data class MonitorBehaviorConfig(
+  val keepLength: Boolean,
+  val showNeutralWhenHidden: Boolean,
+  val neutralPing: String,
+  val neutralDmg: String,
+  val neutralTrend: String,
+  val neutralTier: String,
+  val nameMaxLength: Int,
+  val nameTruncateSuffix: String,
+  val labelMaxLength: Int,
+  val labelUsesKey: Boolean,
+  val labelKeepWidth: Boolean,
+  val keepAliveCycles: Int,
+  val pingRefreshCycles: Int,
+  val pingBucketMs: Int,
+  val trendDecayCycles: Int,
+  val labelRotateMillis: Long,
+) {
+  companion object {
+    fun from(config: ConfigView, updateTicks: Long): MonitorBehaviorConfig =
+      MonitorBehaviorConfig(
+        keepLength = config.getBoolean("behavior.keep-length", true),
+        showNeutralWhenHidden = config.getBoolean("behavior.show-neutral-when-hidden", true),
+        neutralPing = config.getString("behavior.neutral.ping", DEFAULT_NEUTRAL_PING),
+        neutralDmg = config.getString("behavior.neutral.dmg", DEFAULT_NEUTRAL_DMG),
+        neutralTrend = config.getString("behavior.neutral.trend", DEFAULT_NEUTRAL_TREND),
+        neutralTier = config.getString("behavior.neutral.tier", ""),
+        nameMaxLength =
+          config.getInt("behavior.name.max-length", DEFAULT_NAME_MAX_LENGTH).coerceAtLeast(0),
+        nameTruncateSuffix =
+          config.getString("behavior.name.truncate-suffix", DEFAULT_TRUNCATE_SUFFIX),
+        labelMaxLength =
+          config.getInt("behavior.label.max-length", DEFAULT_LABEL_MAX_LENGTH).coerceAtLeast(0),
+        labelUsesKey =
+          !config
+            .getString("behavior.label.style", DEFAULT_LABEL_STYLE)
+            .equals(
+              "title",
+              ignoreCase = true,
+            ),
+        labelKeepWidth = config.getBoolean("behavior.label.keep-width", false),
+        keepAliveCycles = ticksToCycles(sharedKeepAliveTicks(config), updateTicks),
+        pingRefreshCycles =
+          ticksToCycles(
+            config
+              .getLong("behavior.ping-refresh-ticks", DEFAULT_HUD_PING_REFRESH_TICKS)
+              .coerceAtLeast(1L),
+            updateTicks,
+          ),
+        pingBucketMs =
+          config.getInt("behavior.ping-bucket-ms", DEFAULT_HUD_PING_BUCKET_MS).coerceAtLeast(1),
+        trendDecayCycles =
+          ticksToCycles(
+            config
+              .getLong("behavior.trend-decay-ticks", DEFAULT_TREND_DECAY_TICKS)
+              .coerceAtLeast(1L),
+            updateTicks,
+          ),
+        labelRotateMillis =
+          config
+            .getLong("behavior.label-rotate-ticks", DEFAULT_LABEL_ROTATE_TICKS)
+            .coerceAtLeast(0L) * MILLIS_PER_TICK,
+      )
+
+    internal fun sharedKeepAliveTicks(config: ConfigView): Long =
+      config.getLong("behavior.keepalive-ticks", DEFAULT_KEEPALIVE_TICKS).coerceAtLeast(1L)
+  }
+}
+
+data class MonitorLimitsConfig(val maxSessions: Int, val maxViewersPerTarget: Int) {
+  companion object {
+    fun from(config: ConfigView): MonitorLimitsConfig =
+      MonitorLimitsConfig(
+        maxSessions = config.getInt("limits.max-sessions", DEFAULT_MAX_SESSIONS).coerceAtLeast(0),
+        maxViewersPerTarget =
+          config
+            .getInt("limits.max-viewers-per-target", DEFAULT_MAX_VIEWERS_PER_TARGET)
+            .coerceAtLeast(0),
+      )
+  }
+}
+
+data class MonitorAutoConfig(
+  val suspiciousBuffer: Double,
+  val exitRatio: Double,
+  val refreshCycles: Int,
+  val lingerCycles: Int,
+  val combatTicks: Int,
+) {
+  companion object {
+    fun from(config: ConfigView, updateTicks: Long, fallbackBuffer: Double): MonitorAutoConfig {
+      val buffer = config.getDouble("auto.suspicious-buffer", INHERIT_BUFFER)
+      return MonitorAutoConfig(
+        suspiciousBuffer = if (buffer < 0.0) fallbackBuffer else buffer,
+        exitRatio = config.getDouble("auto.exit-ratio", DEFAULT_EXIT_RATIO).coerceIn(0.0, 1.0),
+        refreshCycles =
+          ticksToCycles(
+            config.getLong("auto.refresh-ticks", DEFAULT_AUTO_REFRESH_TICKS).coerceAtLeast(1L),
+            updateTicks,
+          ),
+        lingerCycles =
+          (config.getLong("auto.linger-ticks", DEFAULT_AUTO_LINGER_TICKS).coerceAtLeast(0L) /
+              updateTicks)
+            .toInt(),
+        combatTicks = config.getInt("auto.combat-ticks", DEFAULT_COMBAT_TICKS).coerceAtLeast(1),
+      )
+    }
+  }
+}
+
+data class MonitorHudRuntimeConfig(
+  val updateTicks: Long,
+  val behavior: MonitorBehaviorConfig,
+  val format: MonitorFormatConfig,
+  val modes: Map<MonitorMode, List<MonitorToken>>,
+  val themes: MonitorThemeTable,
+  val limits: MonitorLimitsConfig,
+  val auto: MonitorAutoConfig,
+  val outputs: MonitorOutputsConfig,
+) {
+  val actionBar: ActionBarConfig
+    get() = outputs.actionBar
+
+  val bossBar: BossBarConfig
+    get() = outputs.bossBar
+
+  val sidebar: SidebarConfig
+    get() = outputs.sidebar
+
+  val chat: ChatConfig
+    get() = outputs.chat
+
+  val tabList: TabListConfig
+    get() = outputs.tabList
+
+  fun isEnabled(kind: MonitorOutputKind): Boolean = outputs.isEnabled(kind)
+
+  fun tokens(mode: MonitorMode): List<MonitorToken> = modes[mode] ?: FALLBACK_TOKENS
+
+  companion object {
+    fun fromManager(configManager: ConfigManager, logger: Logger): MonitorHudRuntimeConfig =
+      from(
+        configManager.monitorConfig,
+        viewDisplaySlot(configManager.monitorConfig),
+        logger,
+        configManager.suspiciousAlertsBuffer,
+      )
+
+    fun from(
+      config: ConfigView,
+      viewSlot: Int,
+      logger: Logger,
+      suspiciousBuffer: Double = 0.0,
+    ): MonitorHudRuntimeConfig {
+      val updateTicks = config.getLong("update", DEFAULT_HUD_UPDATE_TICKS).coerceAtLeast(1L)
+      return MonitorHudRuntimeConfig(
+        updateTicks = updateTicks,
+        behavior = MonitorBehaviorConfig.from(config, updateTicks),
+        format = MonitorFormatConfig.from(config),
+        modes = readModes(config, logger),
+        themes = MonitorThemeTable.from(config),
+        limits = MonitorLimitsConfig.from(config),
+        auto = MonitorAutoConfig.from(config, updateTicks, suspiciousBuffer),
+        outputs = MonitorOutputsConfig.from(config, updateTicks, viewSlot, logger),
+      )
+    }
+
+    private fun readModes(
+      config: ConfigView,
+      logger: Logger,
+    ): Map<MonitorMode, List<MonitorToken>> =
+      MonitorMode.entries.associateWith { mode ->
+        val name = mode.name.lowercase(Locale.ROOT)
+        val raw = config.getStringList("modes.$name")
+        val parsed = raw.mapNotNull(MonitorToken::fromConfig)
+        if (raw.isNotEmpty() && parsed.isEmpty()) {
+          logger.warning("[Monitor] modes.$name lists no known tokens; using the built-in list.")
+        }
+        parsed.ifEmpty { FALLBACK_TOKENS }
+      }
+  }
+}
+
+internal val FALLBACK_TOKENS = listOf(MonitorToken.PROB, MonitorToken.TREND, MonitorToken.BUFFER)
+
+internal const val DEFAULT_HUD_UPDATE_TICKS = 2L
+internal const val DEFAULT_KEEPALIVE_TICKS = 20L
+internal const val DEFAULT_HUD_PING_REFRESH_TICKS = 20L
+internal const val DEFAULT_HUD_PING_BUCKET_MS = 10
+internal const val DEFAULT_TREND_DECAY_TICKS = 100L
+internal const val DEFAULT_LABEL_ROTATE_TICKS = 40L
+internal const val DEFAULT_LABEL_MAX_LENGTH = 12
+internal const val DEFAULT_LABEL_STYLE = "key"
+internal const val DEFAULT_NAME_MAX_LENGTH = 12
+internal const val DEFAULT_TRUNCATE_SUFFIX = "…"
+internal const val DEFAULT_NEUTRAL_PING = "<gray>Ping --</gray>"
+internal const val DEFAULT_NEUTRAL_DMG = "<gray>Dmg 1.00x</gray>"
+internal const val DEFAULT_NEUTRAL_TREND = "<gray>+0.00</gray>"
+internal const val DEFAULT_MAX_SESSIONS = 32
+internal const val DEFAULT_MAX_VIEWERS_PER_TARGET = 0
+internal const val MAX_DISPLAY_SLOT = 2
+internal const val INHERIT_BUFFER = -1.0
+internal const val DEFAULT_EXIT_RATIO = 0.8
+internal const val DEFAULT_AUTO_REFRESH_TICKS = 20L
+internal const val DEFAULT_AUTO_LINGER_TICKS = 60L
+internal const val DEFAULT_COMBAT_TICKS = 100

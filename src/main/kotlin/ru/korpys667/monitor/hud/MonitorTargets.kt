@@ -1,0 +1,117 @@
+/*
+ * This file is part of MKAC - https://github.com/korpys667/MKAC
+ * Copyright (C) 2026 korpys667
+ *
+ * MKAC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MKAC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package ru.korpys667.monitor.hud
+
+import java.util.UUID
+import ru.korpys667.monitor.core.MonitorOutputKind
+import ru.korpys667.monitor.core.MonitorSample
+import ru.korpys667.monitor.core.PING_UNAVAILABLE
+import ru.korpys667.monitor.core.PingSampler
+import ru.korpys667.monitor.core.TrendTracker
+
+data class UnavailableTexts(val noData: String, val noAiCheck: String)
+
+class MonitorTargetState(
+  val targetId: UUID,
+  val targetName: String,
+  val texts: UnavailableTexts,
+  threshold: Double,
+  decayCycles: Int,
+) {
+  private val pingSampler = PingSampler()
+  private val trendTracker = TrendTracker(threshold, decayCycles)
+
+  var ping = PING_UNAVAILABLE
+    private set
+
+  var trend = 0.0
+    private set
+
+  var idleCycles = 0
+
+  fun advance(sample: MonitorSample, refreshCycles: Int, bucketMs: Int) {
+    ping = pingSampler.sampleValue(sample.rawPing, refreshCycles, bucketMs)
+    trend = trendTracker.update(sample.probability)
+  }
+}
+
+class MonitorTargets {
+  private val states = LinkedHashMap<UUID, MonitorTargetState>()
+
+  val size: Int
+    get() = states.size
+
+  fun ids(): List<UUID> = states.keys.toList()
+
+  fun names(): List<String> = states.values.map { it.targetName }
+
+  fun all(): List<MonitorTargetState> = states.values.toList()
+
+  fun state(targetId: UUID): MonitorTargetState? = states[targetId]
+
+  fun add(state: MonitorTargetState): Boolean = states.putIfAbsent(state.targetId, state) == null
+
+  fun remove(targetId: UUID): Boolean = states.remove(targetId) != null
+
+  fun retain(keep: Set<UUID>, lingerCycles: Int) {
+    val iterator = states.entries.iterator()
+    while (iterator.hasNext()) {
+      val state = iterator.next().value
+      if (state.targetId in keep) {
+        state.idleCycles = 0
+        continue
+      }
+      state.idleCycles++
+      if (state.idleCycles > lingerCycles) {
+        iterator.remove()
+      }
+    }
+  }
+}
+
+internal fun withinLimits(
+  limits: MonitorLimitsConfig,
+  sessionCount: Int,
+  viewersOfTarget: Int,
+): Boolean {
+  val roomForSession = limits.maxSessions <= 0 || sessionCount < limits.maxSessions
+  val roomOnTarget = limits.maxViewersPerTarget <= 0 || viewersOfTarget < limits.maxViewersPerTarget
+  return roomForSession && roomOnTarget
+}
+
+internal fun outputCapacity(output: MonitorOutput, config: MonitorHudRuntimeConfig): Int {
+  val declared = output.capabilities.maxTargets
+  val configured =
+    when (output.kind) {
+      MonitorOutputKind.BOSSBAR -> config.bossBar.maxBars
+      MonitorOutputKind.SIDEBAR -> sidebarCapacity(config.sidebar)
+      else -> declared
+    }
+  return minOf(declared, configured).coerceAtLeast(1)
+}
+
+private fun sidebarCapacity(sidebar: SidebarConfig): Int {
+  val perTarget = sidebar.lines.size
+  if (perTarget <= 0) {
+    return 1
+  }
+  return (SIDEBAR_MAX_LINES + 1) / (perTarget + 1)
+}
+
+internal fun effectiveCapacity(outputs: List<MonitorOutput>, config: MonitorHudRuntimeConfig): Int =
+  outputs.maxOfOrNull { outputCapacity(it, config) } ?: 1

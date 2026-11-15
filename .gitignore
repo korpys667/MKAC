@@ -1,0 +1,16 @@
+# Gradle
+.gradle/
+build/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# Kotlin/Native and local run artifacts
+run/
+out/
+
+# OS files
+Thumbs.db
+.DS_Store
