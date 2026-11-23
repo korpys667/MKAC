@@ -129,6 +129,7 @@ import ru.korpys667.scheduler.SchedulerService
 import ru.korpys667.sender.Sender
 import ru.korpys667.sender.SenderFactory
 import ru.korpys667.server.AIServerProvider
+import ru.korpys667.telemetry.DetectionReporter
 import ru.korpys667.telemetry.TelemetryService
 import ru.korpys667.utils.MessageUtil
 
@@ -154,6 +155,7 @@ private fun coreModule(plugin: MKAC) = module {
   singleOf(::MKACCoroutines)
   singleOf(::ConfigManager)
   singleOf(::TelemetryService)
+  singleOf(::DetectionReporter)
   singleOf(::LocaleManager)
   singleOf(::DatabaseManager)
   singleOf(::DebugManager)
@@ -308,7 +310,7 @@ private fun checkModule() = module {
   single<CheckManager.Factory> { CheckManager.Factory { player -> CheckManager(player, get()) } }
   single<PunishmentManager.Factory> {
     PunishmentManager.Factory { player ->
-      PunishmentManager(player, get(), get(), get(), get(), get(), get(), get())
+      PunishmentManager(player, get(), get(), get(), get(), get(), get(), get(), get())
     }
   }
 }

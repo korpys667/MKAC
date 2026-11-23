@@ -48,6 +48,7 @@ import ru.korpys667.database.DatabaseManager
 import ru.korpys667.database.ViolationDatabase
 import ru.korpys667.player.MKACPlayer
 import ru.korpys667.scheduler.SchedulerService
+import ru.korpys667.telemetry.DetectionReporter
 import ru.korpys667.utils.Message
 import ru.korpys667.utils.MessageUtil
 
@@ -61,6 +62,7 @@ class PunishmentManager(
   private val adventure: BukkitAudiences,
   private val scheduler: SchedulerService,
   private val coroutines: MKACCoroutines,
+  private val detectionReporter: DetectionReporter,
 ) {
   private val punishmentGroups = LinkedHashMap<String, PunishGroup>()
   private val database: ViolationDatabase = databaseManager.database
@@ -383,6 +385,7 @@ class PunishmentManager(
       )
 
     alertManager.send(message, AlertType.REGULAR)
+    detectionReporter.report(playerName, checkName, vl, labelKeys(labels))
   }
 
   private fun reportUnmatchedFlag(checkName: String, playerName: String, labels: Set<String>) {

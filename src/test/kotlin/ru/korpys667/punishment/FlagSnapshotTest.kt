@@ -32,6 +32,7 @@ import ru.korpys667.database.DatabaseManager
 import ru.korpys667.mitigation.MitigationState
 import ru.korpys667.player.MKACPlayer
 import ru.korpys667.scheduler.SchedulerService
+import ru.korpys667.telemetry.DetectionReporter
 
 class FlagSnapshotTest {
 
@@ -76,6 +77,7 @@ class FlagSnapshotTest {
         adventure = mockk(relaxed = true),
         scheduler = scheduler,
         coroutines = MKACCoroutines(scheduler, Logger.getLogger("test")),
+        detectionReporter = mockk<DetectionReporter>(relaxed = true),
       )
 
     manager.handleFlag(mockk<ICheck>(relaxed = true), emptySet(), "debug")

@@ -17,7 +17,7 @@ BuildConfig.init(project)
 
 group = "ru.korpys667"
 
-version = (findProperty("mkacVersion") as? String)?.takeIf { it.isNotBlank() } ?: "2.0.0"
+version = (findProperty("mkacVersion") as? String)?.takeIf { it.isNotBlank() } ?: "2.0"
 
 val packetEventsSpigot = "com.github.retrooper:packetevents-spigot:2.13.0"
 
