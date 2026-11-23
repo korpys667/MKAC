@@ -163,13 +163,18 @@ jobs:
         id: shadow-jar
         run: echo "path=$(./gradlew -q printShadowJarPath -PmkacVersion=2.0)" >> "$GITHUB_OUTPUT"
 
+      - name: Move rolling snapshot tag to this commit
+        run: |
+          git tag --force 2.0-snapshot "$GITHUB_SHA"
+          git push origin refs/tags/2.0-snapshot --force
+
       - name: Publish snapshot release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           tag_name: 2.0-snapshot
           name: MKAC 2.0
-          prerelease: false
-          make_latest: true
+          prerelease: true
+          make_latest: false
           body: |
             Auto-Built from `${{ github.sha }}` on `master`.
           files: ${{ steps.shadow-jar.outputs.path }}
